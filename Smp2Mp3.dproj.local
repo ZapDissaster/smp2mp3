@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2020/12/08 11:55:17.484.pas,D:\Proyectos\Unit1.pas=D:\Proyectos\Audiocuentos Salvat\Smp2Mp3Frm.pas</Transaction>
+    <Transaction>2020/12/08 11:55:17.485.dfm,D:\Proyectos\Unit1.dfm=D:\Proyectos\Audiocuentos Salvat\Smp2Mp3Frm.dfm</Transaction>
+    <Transaction>2020/12/08 11:55:18.932.dproj,D:\Proyectos\Project1.dproj=D:\Proyectos\Audiocuentos Salvat\Smp2Mp3.dproj</Transaction>
+    <Transaction>2021/01/22 13:36:01.178.pas,D:\Proyectos\Audiocuentos Salvat\Unit1.pas=D:\Proyectos\Audiocuentos Salvat\KeyFrm.pas</Transaction>
+    <Transaction>2021/01/22 13:36:01.178.dfm,D:\Proyectos\Audiocuentos Salvat\Unit1.dfm=D:\Proyectos\Audiocuentos Salvat\KeyFrm.dfm</Transaction>
+  </Transactions>
+</BorlandProject>
