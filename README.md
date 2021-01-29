@@ -7,5 +7,5 @@ Joaquim S. has a similar proyect that works on Python and in addition to encrypt
 His project can be foud here: https://github.com/oyooyo/audiocube
 
 Thanks to Marc D. from https://www.mikrocontroller.net/ for publishing the initial file encryption and RFID tag structure.  
-Thanks to Joachim S. for figuring out the encryption of the Lidl Storyland audio files.
+Thanks to Joachim S. for figuring out the encryption of the Lidl Storyland audio files.  
 Thanks to Cean D. for providing the files for figuring out the encryption for the green cubes (My first alphabet).
