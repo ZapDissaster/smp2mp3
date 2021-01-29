@@ -1,5 +1,5 @@
 # smp2mp3
-Program to Encrypt/Decrypt audio files from audiocubes.
+Program to Encrypt/Decrypt and play audio files from audiocubes.
 
 Audiocubes are a few similar more or less cube-shaped audio players with an integrated speaker, that will automatically start playing encrypted audio files from their internal memory when a RFID tag with the appropriate code is placed on top of the device. All devices seen so far use XOR encrypted audio files with a .smp extension.
 
