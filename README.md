@@ -16,6 +16,6 @@ Thanks to:
 - BASS (https://www.un4seen.com/): Library used to play the audio files.  
 BASS is free for non-commercial use. If you are a non-commercial entity (eg. an individual) and you are not making any money from your product (through sales, advertising, etc), then you can use BASS in it for free.  
 
-- MP3Gain (http://mp3gain.sourceforge.net/): Program used to normalize mp3 files.  
+- MP3Gain (http://mp3gain.sourceforge.net/): Program used for lossless normalization of mp3 files.  
 No license info found.
 
