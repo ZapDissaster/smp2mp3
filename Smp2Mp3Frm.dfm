@@ -2,8 +2,8 @@ object frmSmp2MP3: TfrmSmp2MP3
   Left = 0
   Top = 0
   Caption = 'SMP <-> MP3'
-  ClientHeight = 350
-  ClientWidth = 499
+  ClientHeight = 283
+  ClientWidth = 492
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,46 +14,30 @@ object frmSmp2MP3: TfrmSmp2MP3
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   DesignSize = (
-    499
-    350)
+    492
+    283)
   PixelsPerInch = 96
   TextHeight = 13
-  object gDirProgress: TGauge
-    Left = 0
-    Top = 310
-    Width = 499
-    Height = 22
-    Align = alBottom
-    ForeColor = clOlive
-    Progress = 0
+  object pnlprogress: TPanel
+    Left = 8
+    Top = 135
+    Width = 476
+    Height = 44
+    TabOrder = 3
     Visible = False
-    ExplicitLeft = -8
-    ExplicitTop = 260
-  end
-  object gFileProgress: TGauge
-    Left = 0
-    Top = 288
-    Width = 499
-    Height = 22
-    Align = alBottom
-    ForeColor = clTeal
-    Progress = 0
-    Visible = False
-    ExplicitLeft = -8
-    ExplicitTop = 263
   end
   object gbSingleFile: TGroupBox
     Left = 8
     Top = 8
-    Width = 475
+    Width = 476
     Height = 121
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Convertir un solo archivo'
     TabOrder = 0
-    ExplicitWidth = 478
     DesignSize = (
-      475
+      476
       121)
     object lblSOrigen: TLabel
       Left = 24
@@ -63,7 +47,7 @@ object frmSmp2MP3: TfrmSmp2MP3
       Caption = 'Origen:'
     end
     object btnPlay: TSpeedButton
-      Left = 395
+      Left = 396
       Top = 60
       Width = 25
       Height = 25
@@ -104,7 +88,7 @@ object frmSmp2MP3: TfrmSmp2MP3
       ExplicitLeft = 398
     end
     object btnStop: TSpeedButton
-      Left = 426
+      Left = 427
       Top = 60
       Width = 25
       Height = 25
@@ -197,13 +181,12 @@ object frmSmp2MP3: TfrmSmp2MP3
     object btnConvertSingle: TButton
       Left = 224
       Top = 60
-      Width = 165
+      Width = 166
       Height = 25
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Convertir'
       TabOrder = 3
       OnClick = btnConvertSingleClick
-      ExplicitWidth = 168
     end
     object rbSingleSmp2Mp3: TRadioButton
       Left = 66
@@ -226,7 +209,7 @@ object frmSmp2MP3: TfrmSmp2MP3
       OnClick = rbBatchMp32SmpClick
     end
     object pbAudioLevel: TProgressBar
-      Left = 457
+      Left = 458
       Top = 24
       Width = 15
       Height = 84
@@ -234,7 +217,6 @@ object frmSmp2MP3: TfrmSmp2MP3
       Max = 90
       Orientation = pbVertical
       TabOrder = 4
-      ExplicitLeft = 460
     end
     object edFileName: TEdit
       Left = 66
@@ -248,14 +230,13 @@ object frmSmp2MP3: TfrmSmp2MP3
   object gbConvertBatch: TGroupBox
     Left = 8
     Top = 143
-    Width = 472
+    Width = 476
     Height = 106
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Convertir todos los archivos de un directorio'
     TabOrder = 1
-    ExplicitWidth = 475
     DesignSize = (
-      472
+      476
       106)
     object lblBOrigen: TLabel
       Left = 24
@@ -317,13 +298,12 @@ object frmSmp2MP3: TfrmSmp2MP3
     object btnBatchConvert: TButton
       Left = 224
       Top = 61
-      Width = 227
+      Width = 231
       Height = 25
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Convertir a .mp3'
       TabOrder = 0
       OnClick = btnBatchConvertClick
-      ExplicitWidth = 230
     end
     object rbBatchSmp2Mp3: TRadioButton
       Left = 66
@@ -360,17 +340,6 @@ object frmSmp2MP3: TfrmSmp2MP3
     Height = 17
     Caption = 'Normalizar'
     TabOrder = 2
-  end
-  object pnlStatus: TPanel
-    Left = 0
-    Top = 332
-    Width = 499
-    Height = 18
-    Align = alBottom
-    TabOrder = 3
-    ExplicitLeft = 136
-    ExplicitTop = 288
-    ExplicitWidth = 185
   end
   object tmrAudioLevel: TTimer
     Interval = 100

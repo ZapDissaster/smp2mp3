@@ -31,10 +31,12 @@ type
     procedure seTimesChange(Sender: TObject);
     procedure cboTimeChange(Sender: TObject);
     procedure memKeyChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     FLoadFromFileCaption: string;
     FSaveToFileCaption: string;
     FSelectedFile: string;
+    GLoadingKey : boolean;
     { Private declarations }
     procedure LoadFile(AFileName : string);
     procedure SaveFile(AFileName : string);
@@ -76,6 +78,11 @@ begin
   SelectedFile := '';
 end;
 
+procedure TfrmKey.FormCreate(Sender: TObject);
+begin
+  GLoadingKey := false;
+end;
+
 procedure TfrmKey.FormShow(Sender: TObject);
 begin
   LoadFile(ChangeFileExt(Application.ExeName,'.ini'));
@@ -83,15 +90,20 @@ end;
 
 procedure TfrmKey.LoadFile(AFileName: string);
 begin
-  with TIniFile.Create(AFileName) do
+  GLoadingKey := true;
   try
-    memKey.Lines.CommaText  := ReadString('KEY','XORKEY','0x51,0x23,0x98,0x56');
-    rgRotate.ItemIndex      := ReadInteger('KEY','ROTATEDIRECTION',0);
-    seTimes.Value           := ReadInteger('KEY','ROTATECOUNT',0);
-    cboTime.ItemIndex       := ReadInteger('KEY','ROTATETIME',0);
-    chkChangeExt.Checked    := ReadBool('KEY','CHANGEFILEEXT',True);
+    with TIniFile.Create(AFileName) do
+    try
+      memKey.Lines.CommaText  := ReadString('KEY','XORKEY','0x51,0x23,0x98,0x56');
+      rgRotate.ItemIndex      := ReadInteger('KEY','ROTATEDIRECTION',0);
+      seTimes.Value           := ReadInteger('KEY','ROTATECOUNT',0);
+      cboTime.ItemIndex       := ReadInteger('KEY','ROTATETIME',0);
+      chkChangeExt.Checked    := ReadBool('KEY','CHANGEFILEEXT',True);
+    finally
+      Free;
+    end;
   finally
-    Free;
+    GLoadingKey := false;
   end;
 end;
 
@@ -136,6 +148,8 @@ end;
 
 procedure TfrmKey.SetSelectedFile(const Value: string);
 begin
+  if GLoadingKey then
+    exit;
   FSelectedFile := Value;
 end;
 
@@ -158,6 +172,7 @@ begin
   begin
     LoadFile(lFileName);
     SelectedFile := lFileName;
+    btnOK.SetFocus;
   end;
 end;
 

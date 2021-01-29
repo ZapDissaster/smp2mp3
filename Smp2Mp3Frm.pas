@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Mask, Bass, ExtCtrls, Menus, ComCtrls, Buttons, Gauges;
+  Dialogs, StdCtrls, Mask, Bass, ExtCtrls, Menus, ComCtrls, Buttons, Gauges,
+  Contnrs;
 
 type
 
@@ -94,14 +95,12 @@ type
     pbAudioLevel: TProgressBar;
     btnPlay: TSpeedButton;
     btnStop: TSpeedButton;
-    gDirProgress: TGauge;
-    gFileProgress: TGauge;
     edFileName: TEdit;
     sbSelectFile: TSpeedButton;
     edDirName: TEdit;
     sbSelectDirectory: TSpeedButton;
     OpenDialog: TOpenDialog;
-    pnlStatus: TPanel;
+    pnlprogress: TPanel;
     procedure btnConvertSingleClick(Sender: TObject);
     procedure edFileNameChange(Sender: TObject);
     procedure rbBatchSmp2Mp3Click(Sender: TObject);
@@ -115,10 +114,15 @@ type
     procedure mnuChangelanguageClick(Sender: TObject);
     procedure sbSelectFileClick(Sender: TObject);
     procedure sbSelectDirectoryClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     FFilesFound : TStringList;
     FLastSelectedKeyFile: string;
+    FProgressBars : TObjectList;
+    FProgressLabels : TObjectList;
+    FProgressRowCount : integer;
+    procedure InitKey;
     procedure ConvertSingleFile(ASourceFileName, ADestFileName : string; AEncrypt : boolean);
     procedure ChangeBatchConvertCaption;
     function ConvertExt(AFileName : string) : string;
@@ -132,8 +136,15 @@ type
     property LastSelectedKeyFile : string read FLastSelectedKeyFile write SetLastSelectedKeyFile;
     procedure ChangeCaption;
     procedure ChangebtnConvertSingleCaption;
+    //Functions for progressbars
+    function AddProgress( AMaxValue : integer; ACaption : string = ''): integer;
+    procedure DelProgress( AnIndex : integer );
+    procedure IncProgress( AnIndex : integer; AnAmount : integer = 1);
+    procedure SetProgress( AnIndex, AProgress : integer);
+    function ProgressOf(AnIndex : integer) : integer;
   public
     { Public declarations }
+    procedure ChangeEncryptCaptions;
   end;
 
   procedure BassFileCloseProc(user: Pointer); stdcall;
@@ -229,46 +240,6 @@ begin
 
 end;
 
-procedure InitKey;
-//Initialize the Key to Encrypt/decrypt smp files with the "audiocuentos" format.
-var
-  lKeyFilename : string;
-  i : integer;
-  lKeys : tstringlist;
-begin
-  lKeyFilename := ChangeFileExt(Application.ExeName,'.ini');
-  with TIniFile.Create(lKeyFilename) do
-  try
-    if not SectionExists('KEY') then
-    begin
-      WriteString('KEY','NAME','Audiocuentos.key');
-      WriteInteger('KEY','ROTATEDIRECTION',ord(rdNone));
-      WriteInteger('KEY','ROTATETIME',ord(rtBeforeXOR));
-      WriteInteger('KEY','ROTATECOUNT',0);
-      WriteString('KEY','XORKEY','0x51,0x23,0x98,0x56');
-      WriteBool('KEY','CHANGEFILEEXT',true);
-    end;
-
-    Key.Name := ReadString('KEY','NAME','');
-    key.RotateDirection := TRotateDirection(ReadInteger('KEY','ROTATEDIRECTION',ord(rdNone)));
-    key.RotateTime := TRotateTime(ReadInteger('KEY','ROTATETIME',ord(rtBeforeXOR)));
-    key.RotateCount := ReadInteger('KEY','ROTATECOUNT',0);
-    key.ChangeFileExt := ReadBool('KEY','CHANGEFILEEXT',true);
-    lKeys := TStringList.Create;
-    try
-      lKeys.CommaText := ReadString('KEY','XORKEY','0x51,0x23,0x98,0x56');
-      SetLength(Key.XorKey,lKeys.Count);
-      for i := 0 to lKeys.Count - 1 do
-        Key.XorKey[i] := StrToInt(lKeys[i]);
-    finally
-      lKeys.Free;
-    end;
-  finally
-    Free;
-  end;
-  PlayerKeyIndex := 0;
-end;
-
 function ProcessByte(AByte : Byte; var vKeyIndex : integer; AEncrypt : boolean) : Byte;
 //Encode/Decodes a Byte
   //**************************************************************************//
@@ -338,8 +309,9 @@ function NextKey(var vKeyIndex : integer) : byte;
 //Return Byte key at index position and increment index
 begin
   if Length(Key.XorKey) = 0 then
-    InitKey;
-  result := Key.XorKey[vKeyIndex];
+    result := 0
+  else
+    result := Key.XorKey[vKeyIndex];
 
   inc(vKeyIndex);
   //if Index gets over key length, reset index
@@ -385,6 +357,72 @@ begin
 end;
 
 
+function TfrmSmp2MP3.AddProgress(AMaxValue: integer; ACaption: string): integer;
+const
+  TOP_MARGIN = 8;
+  BOTTOM_MARGIN = 16;
+  LEFT_MARGIN = 16;
+  RIGHT_MARGIN = 16;
+  ROW_HEIGHT = 40;
+  LABEL_HEIGHT = 15;
+  MAX_BARS = 3;
+var
+  lProgressBar : TGauge;
+  lLabel : TLabel;
+  lClientHeight : integer;
+  lControlsHeight : integer;
+begin
+  Assert( AMaxValue >= 0);
+
+  result := FProgressRowCount;
+  inc(FProgressRowCount);
+
+  // show only a defined amout of bars
+  if FProgressBars.Count >= MAX_BARS then
+    exit;
+
+  pnlprogress.BringToFront;
+  lProgressBar := TGauge.Create(pnlprogress);
+  with lProgressBar do
+  begin
+    height := 16;
+    ForeColor := clNavy;
+    Top := TOP_MARGIN + ( ROW_HEIGHT * FProgressBars.Count ) + LABEL_HEIGHT;
+    left := LEFT_MARGIN;
+    Width := pnlprogress.Width - LEFT_MARGIN - RIGHT_MARGIN;
+    MaxValue := AMaxValue;
+    Parent := pnlprogress;
+    Anchors := [akTop,akLeft,akRight];
+  end;
+  FProgressBars.Add( lProgressBar );
+
+  lLabel := TLabel.Create(pnlprogress);
+  with lLabel do
+  begin
+    Top := TOP_MARGIN + ( ROW_HEIGHT * FProgressLabels.Count );
+    left := LEFT_MARGIN;
+    Caption := ACaption;
+    Parent := pnlprogress;
+  end;
+
+//  if (lLabel.Width + LEFT_MARGIN + RIGHT_MARGIN) > ClientWidth then
+//  begin
+//    ClientWidth := MIN(lLabel.Width + LEFT_MARGIN + RIGHT_MARGIN,Screen.Width);
+//    Left := (Screen.Width - ClientWidth) div 2;
+//  end;
+
+  FProgressLabels.Add( lLabel );
+
+  lClientHeight := pnlprogress.ClientHeight;
+  lControlsHeight := TOP_MARGIN + ( ROW_HEIGHT * FProgressBars.Count ) + BOTTOM_MARGIN;
+  pnlprogress.ClientHeight := Max( lClientHeight, lControlsHeight);
+  pnlprogress.Top := (ClientHeight - pnlprogress.ClientHeight) div 2;
+  pnlprogress.Visible := true;;
+
+  if result = 0 then
+    Application.ProcessMessages;
+end;
+
 procedure TfrmSmp2MP3.btnBatchConvertClick(Sender: TObject);
 //Convert all files in a directory
 var
@@ -393,11 +431,14 @@ var
   lSourceExt : string;
   i: Integer;
   lDestFileName : string;
+  lp : integer;
 begin
   Enabled := false;
   AddHourGlassCursor;
   try
     lSourceDir := edDirname.Text;
+    if RightStr(lSourceDir,1) <> '\' then
+      lSourceDir := lSourceDir + '\';
     if not DirectoryExists(lSourceDir) then
     begin
       MessageDlg(Language.MESSAGES_SOURCE_DIR_NOT_FOUND, mtError, [mbOK], 0);
@@ -414,6 +455,12 @@ begin
       Exit;
     if RightStr(lDestDir,1) <> '\' then
       lDestDir := lDestDir + '\';
+
+    if (not Key.ChangeFileExt) and (uppercase(lSourceDir) = UpperCase(lDestDir)) then
+    begin
+      MessageDlg('Source and destination directories are the same.', mtError, [mbOK], 0);
+      exit;
+    end;
 
 
     if rbBatchSmp2Mp3.Checked then
@@ -433,20 +480,17 @@ begin
         MessageDlg(Format(Language.MESSAGES_FILES_OF_TYPE_NOT_FOUND,[lSourceExt]), mtError, [mbOK], 0);
         exit;
       end;
-      gDirProgress.Progress := 0;
-      gDirProgress.MaxValue := FFilesFound.Count;
-      gDirProgress.Visible := true;
-      application.ProcessMessages;
+      lp := AddProgress(FFilesFound.Count,Language.CAPTION_PROCESSING + '...');
       try
         //Iterate through files list and process each file
         for i := 0 to FFilesFound.Count - 1 do
         begin
           lDestFileName := lDestDir + ChangeFileExt(ExtractFileName(FFilesFound[i]),ConvertExt(FFilesFound[i]));
           ConvertSingleFile(FFilesFound[i],lDestFileName, rbBatchMp32Smp.Checked);
-          gDirProgress.Progress := gDirProgress.Progress + 1;
+          IncProgress(lp);
         end;
       finally
-        gDirProgress.Visible := false;
+        DelProgress(lp);
       end;
     finally
       FFilesFound.Free;
@@ -542,6 +586,16 @@ begin
     caption := caption + ' (' + ExtractFileName(FLastSelectedKeyFile) + ')';
 end;
 
+procedure TfrmSmp2MP3.ChangeEncryptCaptions;
+begin
+  rbSingleSmp2Mp3.Visible := key.RotateDirection <> rdNone;
+  rbSingleMp32Smp.Visible := key.RotateDirection <> rdNone;
+  rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
+  rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT;
+  rbSingleSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
+  rbSingleMp32Smp.Caption := Language.CAPTION_ENCRYPT;
+end;
+
 function TfrmSmp2MP3.ChangeLanguageFile : string;
 //asks for langujage file and loads it.
 begin
@@ -596,7 +650,13 @@ var
   lReadBytes : integer;
   i : integer;
   lKeyIndex : integer;
+  lp : integer;
 begin
+  if uppercase(ASourceFileName) = UpperCase(ADestFileName) then
+  begin
+    MessageDlg('Source and destination filename are the same.', mtError, [mbOK], 0);
+    exit;
+  end;
   AddHourGlassCursor;
   try
     //If it must normalize before encrypting
@@ -607,11 +667,7 @@ begin
     lSourceFile := TFileStream.Create(ASourceFileName, fmOpenRead);
     lDestFile := TFileStream.Create(ADestFileName, fmCreate);
     try
-      gFileProgress.Progress := 0;
-      gFileProgress.Visible := true;
-      gFileProgress.MaxValue := ceil(lSourceFile.Size/(BUFFER_MAX + 1));
-      pnlStatus.Caption := Language.CAPTION_PROCESSING + ' ' + ExtractFileName(ASourceFileName) + '...';
-      application.ProcessMessages;
+      lp := AddProgress(ceil(lSourceFile.Size/(BUFFER_MAX + 1)),Language.CAPTION_PROCESSING + ' ' + ExtractFileName(ASourceFileName) + '...');
       try
         while lSourceFile.Position < lSourceFile.Size do    //read while the end of file has not being reached
         begin
@@ -622,11 +678,10 @@ begin
             lDecodedBuffer[i] := ProcessByte(lBuffer[i],lKeyIndex,AEncrypt);
           //Write decoded chunk
           lDestFile.Write(lDecodedBuffer,lReadBytes);
-          gFileProgress.Progress := gFileProgress.Progress + 1;
+          IncProgress(lp);
         end;
       finally
-        pnlStatus.Caption := '';
-        gFileProgress.Visible := false;
+        DelProgress(lp);
       end;
     finally
       //free filestreams
@@ -639,6 +694,24 @@ begin
   finally
     RemoveHourGlassCursor;
   end;
+end;
+
+procedure TfrmSmp2MP3.DelProgress(AnIndex: integer);
+begin
+  // Deletes progres in AnIndex and all below
+  While FProgressBars.Count >= AnIndex + 1 do
+  begin
+    FProgressBars.Delete( FProgressBars.Count -1 );
+    FProgressLabels.Delete( FProgressLabels.Count -1 );
+    Application.ProcessMessages;
+  end;
+  FProgressRowCount := AnIndex;
+  if FProgressRowCount = 0 then
+  begin
+    pnlprogress.Visible := false;
+    pnlProgress.ClientHeight := 10;
+  end;
+//  pnlProgress.ClientHeight := TOP_MARGIN + ( ROW_HEIGHT * FProgressBars.Count ) + BOTTOM_MARGIN;
 end;
 
 procedure TfrmSmp2MP3.edFileNameChange(Sender: TObject);
@@ -714,6 +787,72 @@ begin
     LoadLanguage(ExtractFilePath(Application.ExeName) + lLanguageFile)
   else
     ChangeLanguageFile;
+  FProgressBars := TObjectList.Create;
+  FProgressLabels := TObjectList.Create;
+  FProgressRowCount := 0;
+end;
+
+procedure TfrmSmp2MP3.FormDestroy(Sender: TObject);
+begin
+  FProgressBars.Free;
+  FProgressLabels.Free;
+end;
+
+procedure TfrmSmp2MP3.IncProgress(AnIndex, AnAmount: integer);
+var
+  lProgress : TGauge;
+begin
+  // IF index is higher that bars shown
+  if AnIndex >= FProgressBars.Count then
+    exit;
+
+  // Inc progressbar.
+  lProgress := (FProgressBars[AnIndex] as TGauge);
+
+  lProgress.Progress := lProgress.Progress + AnAmount;
+  Application.ProcessMessages;
+end;
+
+procedure TfrmSmp2MP3.InitKey;
+//Initialize the Key to Encrypt/decrypt smp files with the "audiocuentos" format.
+var
+  lKeyFilename : string;
+  i : integer;
+  lKeys : tstringlist;
+begin
+  lKeyFilename := ChangeFileExt(Application.ExeName,'.ini');
+  with TIniFile.Create(lKeyFilename) do
+  try
+    if not SectionExists('KEY') then
+    begin
+      WriteString('KEY','NAME','Audiocuentos.key');
+      WriteInteger('KEY','ROTATEDIRECTION',ord(rdNone));
+      WriteInteger('KEY','ROTATETIME',ord(rtBeforeXOR));
+      WriteInteger('KEY','ROTATECOUNT',0);
+      WriteString('KEY','XORKEY','0x51,0x23,0x98,0x56');
+      WriteBool('KEY','CHANGEFILEEXT',true);
+    end;
+
+    Key.Name := ReadString('KEY','NAME','');
+    key.RotateDirection := TRotateDirection(ReadInteger('KEY','ROTATEDIRECTION',ord(rdNone)));
+    key.RotateTime := TRotateTime(ReadInteger('KEY','ROTATETIME',ord(rtBeforeXOR)));
+    key.RotateCount := ReadInteger('KEY','ROTATECOUNT',0);
+    key.ChangeFileExt := ReadBool('KEY','CHANGEFILEEXT',true);
+    lKeys := TStringList.Create;
+    try
+      lKeys.CommaText := ReadString('KEY','XORKEY','0x51,0x23,0x98,0x56');
+      SetLength(Key.XorKey,lKeys.Count);
+      for i := 0 to lKeys.Count - 1 do
+        Key.XorKey[i] := StrToInt(lKeys[i]);
+    finally
+      lKeys.Free;
+    end;
+  finally
+    Free;
+  end;
+  PlayerKeyIndex := 0;
+
+  ChangeEncryptCaptions;
 end;
 
 function TfrmSmp2MP3.InitLanguage: TLanguage;
@@ -836,15 +975,12 @@ begin
   lblSOrigen.Caption := Language.lblSOrigen_caption;
   gbConvertBatch.Caption := Language.gbConvertBatch_caption;
   lblBOrigen.Caption := Language.lblBOrigen_caption;
-  rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
-  rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT;
-  rbSingleSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
-  rbSingleMp32Smp.Caption := Language.CAPTION_ENCRYPT;
   btnBatchConvert.Caption := Language.btnBatchConvert_caption;
   chkNormalizar.Caption := Language.chkNormalizar_caption;
   mnuConfig.Caption := Language.mnuConfig_caption;
   mnuChangeKey.Caption := Language.mnuChangeKey_caption;
   mnuChangelanguage.Caption := Language.mnuChangelanguage_caption;
+  ChangeEncryptCaptions;
 end;
 
 procedure TfrmSmp2MP3.mnuChangeKeyClick(Sender: TObject);
@@ -900,6 +1036,7 @@ function TfrmSmp2MP3.NormalizeAudio(AFile: string): boolean;
     BytesRead: Cardinal;
     WorkDir, Line: String;
     i : integer;
+    lp : integer;
   begin
     with SA do
     begin
@@ -907,10 +1044,7 @@ function TfrmSmp2MP3.NormalizeAudio(AFile: string): boolean;
       bInheritHandle := True;
       lpSecurityDescriptor := nil;
     end;
-    gFileProgress.Progress := 0;
-    gFileProgress.MaxValue := 100;
-    gFileProgress.Visible := true;
-    Application.ProcessMessages;
+    lp := AddProgress(100,Language.CAPTION_NORMALIZING + ' ' + ExtractFileName(AFile) + '...');
     // create pipe for standard output redirection
     CreatePipe(StdOutPipeRead,  // read handle
                StdOutPipeWrite, // write handle
@@ -957,8 +1091,8 @@ function TfrmSmp2MP3.NormalizeAudio(AFile: string): boolean;
               if i > 0 then
               begin
                 Line := Trim(MidStr(Line,i-3,3));
-                if StrToInt(Line) > gFileProgress.Progress then
-                  gFileProgress.Progress := StrToInt(Line);
+                if StrToInt(Line) > ProgressOf(lp) then
+                  SetProgress(lp,StrToInt(Line));
               end;
             end;
             Application.ProcessMessages;
@@ -971,7 +1105,7 @@ function TfrmSmp2MP3.NormalizeAudio(AFile: string): boolean;
           CloseHandle(PI.hProcess);
         end;
     finally
-      gFileProgress.Visible := false;
+      DelProgress(lp);
       result:=Line;
       CloseHandle(StdOutPipeRead);
     end;
@@ -984,43 +1118,52 @@ var
 begin
   lQuotedFile := AFile;
   Result := False;
-  pnlStatus.Caption := Language.CAPTION_NORMALIZING + ' ' + ExtractFileName(AFile) + '...';
-  application.ProcessMessages;
   try
-    try
-      if FileExists(AFile) then
+    if FileExists(AFile) then
+    begin
+      //Revisa que el archivo no sea de solo lectura
+      lAttrs := FileGetAttr(AFile);
+      if lAttrs and faReadOnly > 0 then
       begin
-        //Revisa que el archivo no sea de solo lectura
-        lAttrs := FileGetAttr(AFile);
-        if lAttrs and faReadOnly > 0 then
-        begin
-          MessageDlg(AFile + ' is read only.', mtError, [mbOK], 0);
-          result := false
-        end
-        else
-        begin
-          lAudioExt := UpperCase(ExtractFileExt(AFile));
-          lQuotedFile := '"' + AFile + '"';
-          if lAudioExt = '.MP3' then
-          begin
-            if FileExists(ExtractFilePath(Application.ExeName) + 'mp3gain.exe') then
-            begin
-              GetDosOutput('mp3gain.exe /r /c ' + lQuotedFile);
-              result := True;
-            end
-            else
-              MessageDlg('File not found: mp3gain.exe', mtError, [mbOK], 0);
-          end;
-        end;
+        MessageDlg(AFile + ' is read only.', mtError, [mbOK], 0);
+        result := false
       end
       else
-        result := false; //File not found
-    except
-      result := false; //Other error
-    end;
-  finally
-    pnlStatus.Caption := '';
+      begin
+        lAudioExt := UpperCase(ExtractFileExt(AFile));
+        lQuotedFile := '"' + AFile + '"';
+        if lAudioExt = '.MP3' then
+        begin
+          if FileExists(ExtractFilePath(Application.ExeName) + 'mp3gain.exe') then
+          begin
+            GetDosOutput('mp3gain.exe /r /c ' + lQuotedFile);
+            result := True;
+          end
+          else
+            MessageDlg('File not found: mp3gain.exe', mtError, [mbOK], 0);
+        end;
+      end;
+    end
+    else
+      result := false; //File not found
+  except
+    result := false; //Other error
   end;
+end;
+
+function TfrmSmp2MP3.ProgressOf(AnIndex: integer): integer;
+var
+  lProgress : TGauge;
+begin
+  result := 0;
+  // If there are less progress than index
+  if AnIndex >= FProgressBars.Count then
+    exit;
+
+  // Set progress
+  lProgress := (FProgressBars[AnIndex] as TGauge);
+
+  result := lProgress.Progress;
 end;
 
 procedure TfrmSmp2MP3.btnPlayClick(Sender: TObject);
@@ -1095,6 +1238,21 @@ begin
     Free;
   end;
   ChangeCaption;
+end;
+
+procedure TfrmSmp2MP3.SetProgress(AnIndex, AProgress: integer);
+var
+  lProgress : TGauge;
+begin
+  // If there are less progress than index
+  if AnIndex >= FProgressBars.Count then
+    exit;
+
+  // Set progress
+  lProgress := (FProgressBars[AnIndex] as TGauge);
+
+  lProgress.Progress := AProgress;
+  Application.ProcessMessages;
 end;
 
 procedure TfrmSmp2MP3.sbSelectDirectoryClick(Sender: TObject);

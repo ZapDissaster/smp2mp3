@@ -12,6 +12,7 @@ object frmKey: TfrmKey
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnCreate = FormCreate
   OnShow = FormShow
   DesignSize = (
     382
@@ -103,10 +104,9 @@ object frmKey: TfrmKey
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'OK'
+    Caption = '&OK'
     TabOrder = 2
     OnClick = btnOKClick
-    ExplicitTop = 242
   end
   object btnCancel: TButton
     Left = 299
@@ -114,10 +114,9 @@ object frmKey: TfrmKey
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'Cancel'
+    Caption = '&Cancel'
     TabOrder = 3
     OnClick = btnCancelClick
-    ExplicitTop = 242
   end
   object gbXORkey: TGroupBox
     Left = 8
