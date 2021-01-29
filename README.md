@@ -13,7 +13,7 @@ Audiocubes are cube like audio players with an integrated speaker, that will aut
   - Bit rotation can be specified to be applied before or after applying the XOR operation.
   - Keys can be saved to and loaded from files to facilitate changing keys for different audiocubes.
 - Languaje can be easily changed using .lan files.
-- No instalation needed, just download https://github.com/ZapDissaster/smp2mp3/blob/main/Bin/Smp2Mp3.zip, unzip and run smp2mp3.exe
+- No instalation needed, just download [Smp2Mp3.zip](https://github.com/ZapDissaster/smp2mp3/blob/main/Bin/Smp2Mp3.zip), unzip and run smp2mp3.exe
 
 ### Similar projects
 Joaquim S. has a similar proyect that works on Python and in addition to encrypt/decrypt the files can create the .mct files to use with the Mifare Classic Tools app to write the RFID Tags for the Hachette (Salvat) audiocube, in addition he has collected a lot of information regarding this kind of cubes.
