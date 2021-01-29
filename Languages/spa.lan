@@ -1,0 +1,78 @@
+[frmSmp2Mp3]
+CAPTION=Convertidor SMP <-> MP3
+[gbSingleFile]
+CAPTION=Convertir un solo archivo
+[btnConvertSingle]
+CAPTION=Convertir
+[lblSOrigen]
+CAPTION=Origen:
+[gbConvertBatch]
+CAPTION=Convertir todos los archivos de un directorio
+[lblBOrigen]
+CAPTION=Origen:
+[btnBatchConvert]
+CAPTION=Convertir
+[chkNormalizar]
+CAPTION=Normalizar
+[mnuConfig]
+CAPTION=Configuración
+[mnuChangeKey]
+CAPTION=Cambiar clave de encriptación
+[mnuChangelanguage]
+CAPTION=Cambiar idioma
+[frmKey]
+CAPTION=Cambiar llave
+[frmKey_btnOK]
+CAPTION=Aceptar
+[frmKey_btnCancel]
+CAPTION=Cancelar
+[frmKey_gbRotate]
+CAPTION=Rotar bits
+[frmKey_gbXORkey]
+CAPTION=Clave XOR
+[frmKey_lblTimes]
+CAPTION=Veces
+[frmKey_lblTime]
+CAPTION=Momento
+[frmKey_chkChangeExt]
+CAPTION=Cambiar extensión de archivo (smp <-> mp3)
+[frmKey_rgRotate_disabled]
+CAPTION=Deshabilitado
+[frmKey_rgRotate_right]
+CAPTION=Derecha
+[frmKey_rgRotate_left]
+CAPTION=Izquierda
+[frmKey_cboTime_beforeXOR]
+CAPTION=Antes de XOR
+[frmKey_cboTime_afterXOR]
+CAPTION=Después de XOR
+[frmKey_SaveToFile]
+CAPTION=Guardar llave como
+[frmKey_LoadFromFile]
+CAPTION=Cargar llave
+[MESSAGES]
+FILE_NOT_FOUND=No se encuentra el archivo: %s.
+SOURCE_DIR_NOT_FOUND=No existe el directorio origen.
+CONVERTION_TYPE_NOT_SELECTED=No se ha seleccionado el tipo de conversión.
+REPLACE_FILES_WARNING=Este proceso reemplazará los archivos %s que puedan existir en el mismo directorio en que se encuentran los archivos origen. ¿Aún así desea continuar?
+FILES_OF_TYPE_NOT_FOUND=No se encontraron archivos %s a convertir.
+CONVERTING_FILES=Convirtiendo archivos ...
+PLEASE_WAIT=Por favor espere ...
+CONVERTION_CANCELLED=Se cancelo el proceso, no todos los archivos fueron convertidos.
+CONVERSION_ENDED=La conversión ha terminado.
+SELECTED_FILE_DONT_EXISTS=El archivo seleccionado no existe.
+CONVERT=Convertir
+CONVERT_TO=Convertir a %s
+CONVERTING_FILE=Convirtiendo archivo ...
+OVERWRITE_PROMPT=El archivo destino ya existe, si continua se sobreescribirá su contenido. ¿Aún así desea continuar?
+COULD_NOT_CREATE_STREAM=No fué posible crear el stream (%s)
+COULD_NOT_PLAY_FILE=No se le pudo dar play (%s)
+[CAPTION]
+NORMALIZE_BEFORE=Normalizar mp3 antes de convertirlo
+NORMALIZE_AFTER=Normalizar mp3 resultante.
+ENCRYPT=Encriptar (.mp3 -> .smp)
+DECRYPT=Desencriptar (.smp -> .mp3)
+NORMALIZING=Normalizando
+PROCESSING=Procesando
+SAVE_AS=Seleccionar directorio
+SAVE_TO=Guardar en
