@@ -1,5 +1,5 @@
 # smp2mp3
-### Descripcion:
+### Description:
 Windows based program to Encrypt/Decrypt and play audio files from audiocubes.
 
 Audiocubes are cube like audio players with an integrated speaker, that will automatically play encrypted audio files when a RFID tag with the appropriate code is placed on top of the device. All devices seen so far use XOR encrypted audio files with a .smp extension.
