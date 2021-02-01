@@ -133,6 +133,7 @@ object frmSmp2MP3: TfrmSmp2MP3
       Top = 24
       Width = 23
       Height = 22
+      Anchors = [akTop, akRight]
       Glyph.Data = {
         36050000424D3605000000000000360400002800000010000000100000000100
         0800000000000001000000000000000000000001000000000000000000000000
@@ -223,6 +224,7 @@ object frmSmp2MP3: TfrmSmp2MP3
       Top = 24
       Width = 354
       Height = 21
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       OnChange = edFileNameChange
     end
@@ -250,6 +252,7 @@ object frmSmp2MP3: TfrmSmp2MP3
       Top = 24
       Width = 23
       Height = 22
+      Anchors = [akTop, akRight]
       Glyph.Data = {
         36050000424D3605000000000000360400002800000010000000100000000100
         0800000000000001000000000000000000000001000000000000000000000000
@@ -330,6 +333,7 @@ object frmSmp2MP3: TfrmSmp2MP3
       Top = 24
       Width = 354
       Height = 21
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
     end
   end
@@ -353,12 +357,15 @@ object frmSmp2MP3: TfrmSmp2MP3
       Caption = 'Configuraci'#243'n'
       object mnuChangeKey: TMenuItem
         Caption = 'Cambiar clave de encriptaci'#243'n'
-        OnClick = mnuChangeKeyClick
       end
       object mnuChangelanguage: TMenuItem
         Caption = 'Cambiar idioma'
         OnClick = mnuChangelanguageClick
       end
+    end
+    object mniGenerateMCT: TMenuItem
+      Caption = 'Generar mct'
+      OnClick = mniGenerateMCTClick
     end
   end
   object OpenDialog: TOpenDialog

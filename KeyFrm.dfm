@@ -2,7 +2,7 @@ object frmKey: TfrmKey
   Left = 0
   Top = 0
   Caption = 'Clave'
-  ClientHeight = 295
+  ClientHeight = 330
   ClientWidth = 382
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,15 +16,15 @@ object frmKey: TfrmKey
   OnShow = FormShow
   DesignSize = (
     382
-    295)
+    330)
   PixelsPerInch = 96
   TextHeight = 13
-  object SpeedButton1: TSpeedButton
-    Left = 37
-    Top = 264
+  object sbSaveKey: TSpeedButton
+    Left = 351
+    Top = 8
     Width = 23
     Height = 22
-    Anchors = [akLeft, akBottom]
+    Anchors = [akTop, akRight]
     Glyph.Data = {
       42020000424D4202000000000000420000002800000010000000100000000100
       10000300000000020000120B0000120B00000000000000000000007C0000E003
@@ -45,14 +45,14 @@ object frmKey: TfrmKey
       712D9235FF7FFF7FDB5ADB5ABA56FA5EB756B6569652B756534A5246764EB135
       B335D339FF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7F
       FF7FFF7FFF7F}
-    OnClick = SpeedButton1Click
+    OnClick = sbSaveKeyClick
   end
-  object SpeedButton2: TSpeedButton
-    Left = 8
-    Top = 264
+  object sbLoadKey: TSpeedButton
+    Left = 322
+    Top = 8
     Width = 23
     Height = 22
-    Anchors = [akLeft, akBottom]
+    Anchors = [akTop, akRight]
     Glyph.Data = {
       36050000424D3605000000000000360400002800000010000000100000000100
       0800000000000001000000000000000000000001000000000000000000000000
@@ -96,31 +96,33 @@ object frmKey: TfrmKey
       1616161616161616221216090808080808FFFFFFFFFF1618121216FF02020202
       FF161616161616121212121AFFFFFFFF1612121212121212121212121A1A1A1A
       1212121212121212121212121212121212121212121212121212}
-    OnClick = SpeedButton2Click
+    OnClick = sbLoadKeyClick
   end
   object btnOK: TButton
     Left = 218
-    Top = 262
+    Top = 297
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
     Caption = '&OK'
     TabOrder = 2
     OnClick = btnOKClick
+    ExplicitTop = 262
   end
   object btnCancel: TButton
     Left = 299
-    Top = 262
+    Top = 297
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
     Caption = '&Cancel'
     TabOrder = 3
     OnClick = btnCancelClick
+    ExplicitLeft = 300
   end
   object gbXORkey: TGroupBox
     Left = 8
-    Top = 127
+    Top = 155
     Width = 366
     Height = 105
     Caption = 'Clave XOR'
@@ -131,13 +133,14 @@ object frmKey: TfrmKey
       Width = 362
       Height = 88
       Align = alClient
+      PopupMenu = PopupMenu
       TabOrder = 0
       OnChange = memKeyChange
     end
   end
   object gbRotate: TGroupBox
     Left = 8
-    Top = 8
+    Top = 36
     Width = 366
     Height = 113
     Caption = 'Rotar bits'
@@ -202,10 +205,15 @@ object frmKey: TfrmKey
   end
   object chkChangeExt: TCheckBox
     Left = 8
-    Top = 236
+    Top = 264
     Width = 366
     Height = 17
     Caption = 'Cambiar extensi'#243'n de archivo (smp <-> mp3)'
     TabOrder = 4
+  end
+  object PopupMenu: TPopupMenu
+    AutoHotkeys = maManual
+    Left = 288
+    Top = 160
   end
 end

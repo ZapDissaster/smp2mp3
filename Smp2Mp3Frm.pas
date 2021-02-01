@@ -5,75 +5,9 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Mask, Bass, ExtCtrls, Menus, ComCtrls, Buttons, Gauges,
-  Contnrs;
+  Contnrs, smp2mp3Utils;
 
 type
-
-  TRotateDirection = (rdNone, rdRight, rdLeft);
-  TRotateTime = (rtBeforeXOR, rtAfterXOR);
-
-  TAlgorithm = record
-    Name : string;
-    XorKey : array of Byte;
-    RotateDirection : TRotateDirection;
-    RotateTime : TRotateTime;
-    RotateCount : byte;
-    ChangeFileExt : boolean;
-  end;
-
-
-  TLanguage = record
-    frmSmp2Mp3_caption : string;
-    gbSingleFile_caption : string;
-    btnConvertSingle_caption : string;
-    lblSOrigen_caption : string;
-    gbConvertBatch_caption : string;
-    lblBOrigen_caption : string;
-    btnBatchConvert_caption : string;
-    chkNormalizar_caption : string;
-    mnuConfig_caption : string;
-    mnuChangeKey_caption : string;
-    frmKey_caption : string;
-    frmKey_btnOK_caption : string;
-    frmKey_btnCancel_caption : string;
-    frmKey_gbRotate_caption : string;
-    frmKey_gbXORkey_caption : string;
-    frmKey_lblTimes_caption : string;
-    frmKey_lblTime_caption : string;
-    frmKey_chkChangeExt_Caption : string;
-    frmKey_rgRotate_disabled : string;
-    frmKey_rgRotate_right : string;
-    frmKey_rgRotate_left : string;
-    frmKey_cboTime_beforeXOR : string;
-    frmKey_cboTime_afterXOR : string;
-    frmKey_SaveToFile_caption : string;
-    frmKey_LoadFromFile_caption : string;
-    mnuChangelanguage_caption : string;
-    MESSAGES_FILE_NOT_FOUND : string;
-    MESSAGES_SOURCE_DIR_NOT_FOUND : string;
-    MESSAGES_CONVERTION_TYPE_NOT_SELECTED : string;
-    MESSAGES_REPLACE_FILES_WARNING : string;
-    MESSAGES_FILES_OF_TYPE_NOT_FOUND : string;
-    MESSAGES_CONVERTING_FILES : string;
-    MESSAGES_PLEASE_WAIT : string;
-    MESSAGES_CONVERTION_CANCELLED : string;
-    MESSAGES_CONVERSION_ENDED : string;
-    MESSAGES_SELECTED_FILE_DONT_EXISTS : string;
-    MESSAGES_CONVERT : string;
-    MESSAGES_CONVERT_TO : string;
-    MESSAGES_CONVERTING_FILE : string;
-    MESSAGES_OVERWRITE_PROMPT : string;
-    MESSAGES_COULD_NOT_CREATE_STREAM : string;
-    MESSAGES_COULD_NOT_PLAY_FILE : string;
-    CAPTION_NORMALIZE_BEFORE : string;
-    CAPTION_NORMALIZE_AFTER : string;
-    CAPTION_ENCRYPT : string;
-    CAPTION_DECRYPT : string;
-    CAPTION_NORMALIZING : string;
-    CAPTION_PROCESSING : string;
-    CAPTION_SELECT_DIR : string;
-    CAPTION_SAVE_TO : string;
-  end;
 
   TfrmSmp2MP3 = class(TForm)
     gbSingleFile: TGroupBox;
@@ -101,6 +35,7 @@ type
     sbSelectDirectory: TSpeedButton;
     OpenDialog: TOpenDialog;
     pnlprogress: TPanel;
+    mniGenerateMCT: TMenuItem;
     procedure btnConvertSingleClick(Sender: TObject);
     procedure edFileNameChange(Sender: TObject);
     procedure rbBatchSmp2Mp3Click(Sender: TObject);
@@ -115,27 +50,24 @@ type
     procedure sbSelectFileClick(Sender: TObject);
     procedure sbSelectDirectoryClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure mniGenerateMCTClick(Sender: TObject);
   private
     { Private declarations }
     FFilesFound : TStringList;
-    FLastSelectedKeyFile: string;
     FProgressBars : TObjectList;
     FProgressLabels : TObjectList;
     FProgressRowCount : integer;
+    Language : TLanguage;
     procedure InitKey;
     procedure ConvertSingleFile(ASourceFileName, ADestFileName : string; AEncrypt : boolean);
     procedure ChangeBatchConvertCaption;
     function ConvertExt(AFileName : string) : string;
-    function InitLanguage : TLanguage;
     procedure LoadLanguage(AFilename : string);
-    procedure WriteLanguage(AFilename : string; ALanguage : TLanguage);
     function ChangeLanguageFile : string;
-    procedure FindFiles(ADirName : string; AFileExt: string);
     function NormalizeAudio(AFile: string): boolean;
-    procedure SetLastSelectedKeyFile(const Value: string);
-    property LastSelectedKeyFile : string read FLastSelectedKeyFile write SetLastSelectedKeyFile;
-    procedure ChangeCaption;
-    procedure ChangebtnConvertSingleCaption;
+    procedure ChangeCaptions;
+    procedure FileFound(AFilename : string);
+    procedure mniChangeKeyShortcut(Sender: TObject);
     //Functions for progressbars
     function AddProgress( AMaxValue : integer; ACaption : string = ''): integer;
     procedure DelProgress( AnIndex : integer );
@@ -144,7 +76,6 @@ type
     function ProgressOf(AnIndex : integer) : integer;
   public
     { Public declarations }
-    procedure ChangeEncryptCaptions;
   end;
 
   procedure BassFileCloseProc(user: Pointer); stdcall;
@@ -159,11 +90,10 @@ type
 
 var
   frmSmp2MP3: TfrmSmp2MP3;
-  Key: TAlgorithm;
+  GlobalKey: TAlgorithm;
   PlayerKeyIndex : integer;
   GSourceFile : TFileStream;
   Player: HSTREAM;
-  Language : TLanguage;
   gHourGlassLevel : Integer = 0;
   gLastCursor : TCursor;
 
@@ -172,7 +102,7 @@ var
 implementation
 
 uses
-  StrUtils, Math, IniFiles, KeyFrm, FileCtrl;
+  StrUtils, Math, IniFiles, KeyFrm, FileCtrl, mctFrm;
 
 {$R *.dfm}
 
@@ -262,17 +192,17 @@ function ProcessByte(AByte : Byte; var vKeyIndex : integer; AEncrypt : boolean) 
     if ARotateDirection = rdNone then
       result := AValue
     else if ARotateDirection = rdRight then
-      result := lROR(AValue,key.RotateCount)
+      result := lROR(AValue,GlobalKey.RotateCount)
     else if ARotateDirection = rdLeft then
-      result := lROL(AValue,key.RotateCount);
+      result := lROL(AValue,GlobalKey.RotateCount);
   end;
   //**************************************************************************//
 var
   lRotateTime : TRotateTime;
   lRotateDirection : TRotateDirection;
 begin
-  lRotateTime := Key.RotateTime;
-  lRotateDirection := Key.RotateDirection;
+  lRotateTime := GlobalKey.RotateTime;
+  lRotateDirection := GlobalKey.RotateDirection;
 
   //If is decrypting then the the bit rotation must be reversed in direction and time
   if (not AEncrypt) and (lRotateDirection <> rdNone) then
@@ -294,8 +224,8 @@ begin
     AByte := lRotateByte(AByte,lRotateDirection);
 
   //Apply XOR encryption/decryption
-  if length(Key.XorKey) > 0 then
-    result := AByte xor NextKey(vKeyIndex) //Nextkey returns the key at the index positon and increments the index position
+  if length(GlobalKey.XorKey) > 0 then
+    result := AByte xor NextKey(vKeyIndex) //Nextkey returns the GlobalKey at the index positon and increments the index position
   else
     result := AByte;
 
@@ -306,16 +236,16 @@ end;
 
 
 function NextKey(var vKeyIndex : integer) : byte;
-//Return Byte key at index position and increment index
+//Return Byte GlobalKey at index position and increment index
 begin
-  if Length(Key.XorKey) = 0 then
+  if Length(GlobalKey.XorKey) = 0 then
     result := 0
   else
-    result := Key.XorKey[vKeyIndex];
+    result := GlobalKey.XorKey[vKeyIndex];
 
   inc(vKeyIndex);
-  //if Index gets over key length, reset index
-  if vKeyIndex >= length(Key.XorKey) then
+  //if Index gets over GlobalKey length, reset index
+  if vKeyIndex >= length(GlobalKey.XorKey) then
     vKeyIndex := 0;
 end;
 
@@ -353,7 +283,7 @@ begin
   result := true;
   GSourceFile.Position := offset;
   //sets PlayerKeyIndex to the right value according to the new position
-  PlayerKeyIndex := offset mod length(Key.XorKey);
+  PlayerKeyIndex := offset mod length(GlobalKey.XorKey);
 end;
 
 
@@ -456,7 +386,7 @@ begin
     if RightStr(lDestDir,1) <> '\' then
       lDestDir := lDestDir + '\';
 
-    if (not Key.ChangeFileExt) and (uppercase(lSourceDir) = UpperCase(lDestDir)) then
+    if (not GlobalKey.ChangeFileExt) and (uppercase(lSourceDir) = UpperCase(lDestDir)) then
     begin
       MessageDlg('Source and destination directories are the same.', mtError, [mbOK], 0);
       exit;
@@ -474,7 +404,7 @@ begin
     FFilesFound := TStringList.Create;
     try
       //get files list (to be able to show a files progress bar)
-      FindFiles(lSourceDir,lSourceExt);
+      FindFiles(lSourceDir,lSourceExt,FileFound);
       if FFilesFound.Count = 0 then
       begin
         MessageDlg(Format(Language.MESSAGES_FILES_OF_TYPE_NOT_FOUND,[lSourceExt]), mtError, [mbOK], 0);
@@ -557,17 +487,26 @@ begin
     chkNormalizar.Caption := Language.CAPTION_NORMALIZE_BEFORE;
 end;
 
-procedure TfrmSmp2MP3.ChangebtnConvertSingleCaption;
+procedure TfrmSmp2MP3.ChangeCaptions;
 var
   lDestExt : string;
 begin
+  caption := Language.frmSmp2Mp3_caption;
+  if GlobalKey.Name <> '' then
+    caption := caption + ' (' + ExtractFileName(GlobalKey.Name) + ')';
+  rbSingleSmp2Mp3.Visible := GlobalKey.RotateDirection <> rdNone;
+  rbSingleMp32Smp.Visible := GlobalKey.RotateDirection <> rdNone;
+  rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
+  rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT;
+  rbSingleSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
+  rbSingleMp32Smp.Caption := Language.CAPTION_ENCRYPT;
   lDestExt := ConvertExt(edFileName.Text);
 
   if lDestExt <> '' then
     btnConvertSingle.Caption := Format(Language.MESSAGES_CONVERT_TO,[lDestExt])
   else
     btnConvertSingle.Caption := Language.MESSAGES_CONVERT;
-  chkNormalizar.Enabled := Key.ChangeFileExt;
+  chkNormalizar.Enabled := GlobalKey.ChangeFileExt;
   if chkNormalizar.Enabled then
   begin
     if lDestExt = '.mp3' then
@@ -579,27 +518,11 @@ begin
     chkNormalizar.Caption := Language.chkNormalizar_caption;
 end;
 
-procedure TfrmSmp2MP3.ChangeCaption;
-begin
-  caption := Language.frmSmp2Mp3_caption;
-  if FLastSelectedKeyFile <> '' then
-    caption := caption + ' (' + ExtractFileName(FLastSelectedKeyFile) + ')';
-end;
-
-procedure TfrmSmp2MP3.ChangeEncryptCaptions;
-begin
-  rbSingleSmp2Mp3.Visible := key.RotateDirection <> rdNone;
-  rbSingleMp32Smp.Visible := key.RotateDirection <> rdNone;
-  rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
-  rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT;
-  rbSingleSmp2Mp3.Caption := Language.CAPTION_DECRYPT;
-  rbSingleMp32Smp.Caption := Language.CAPTION_ENCRYPT;
-end;
-
 function TfrmSmp2MP3.ChangeLanguageFile : string;
 //asks for langujage file and loads it.
 begin
   result := '';
+  OpenDialog.Title := Language.mnuChangelanguage_caption;
   OpenDialog.Filter := '*.lan|*.lan';
   OpenDialog.InitialDir := ExtractFileDir(Application.ExeName);
   OpenDialog.FileName := 'spa.lan';
@@ -609,14 +532,14 @@ begin
       result := OpenDialog.FileName
     else
       exit;
-    with TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini')) do
+    with TIniFile.Create(IniFileName) do
     try
-      WriteString('LANGUAGE','FILE',ExtractFileName(result));
+      WriteString('LANGUAGE','FILE',result);
     finally
       free;
     end;
     LoadLanguage(result);
-    result := ExtractFileName(result);
+    result := result;
   end;
 end;
 
@@ -627,7 +550,7 @@ var
 begin
   lSourceExt := UpperCase(ExtractFileExt(AFileName));
 
-  if key.ChangeFileExt then
+  if GlobalKey.ChangeFileExt then
   begin
     if lSourceExt = '.SMP' then
       Result := '.mp3'
@@ -717,47 +640,12 @@ end;
 procedure TfrmSmp2MP3.edFileNameChange(Sender: TObject);
 //change button caption when the filename changes
 begin
-  ChangebtnConvertSingleCaption;
+  ChangeCaptions;
 end;
 
-procedure TfrmSmp2MP3.FindFiles(ADirName : string; AFileExt: string);
-//adds files to FFilesFound that are in ADirName and have the extension AFileExt
-  //**************************************************************************//
-  procedure lAddFile(AFilename : string);
-  begin
-    if UpperCase(ExtractFileExt(AFilename)) = UpperCase(AFileExt) then
-      FFilesFound.Add(AFilename);
-  end;
-  //**************************************************************************//
-var
-  SearchRec : TSearchRec;
+procedure TfrmSmp2MP3.FileFound(AFilename: string);
 begin
-  if Application.Terminated then
-    exit;
-  if ADirName[length(ADirName)] <> '\' then
-    ADirName := ADirName + '\';
-  try
-    if FindFirst(ADirName + '*.*',faAnyFile,SearchRec) = 0 then
-    begin
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-      begin
-        if not (SearchRec.Attr and faDirectory > 0) then
-          lAddFile(ADirName + SearchRec.Name);
-      end;
-      while FindNext(SearchRec) = 0 do
-      begin
-        if Application.Terminated then
-          exit;
-        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        begin
-          if not (SearchRec.Attr and faDirectory > 0) then
-            lAddFile(ADirName + SearchRec.Name);
-        end;
-      end;
-    end;
-  finally
-    findclose(SearchRec);
-  end;
+  FFilesFound.Add(AFilename);
 end;
 
 procedure TfrmSmp2MP3.FormCreate(Sender: TObject);
@@ -765,14 +653,14 @@ procedure TfrmSmp2MP3.FormCreate(Sender: TObject);
 var
   lDevice : integer;
   lLanguageFile : string;
+  lDir : string;
+  lMenuItem : TMenuItem;
 begin
   lLanguageFile := '';
-  InitKey;
-  LastSelectedKeyFile := Key.Name;
   if not FileExists(ExtractFilePath(Application.ExeName) + 'spa.lan') then
-    WriteLanguage(ExtractFilePath(Application.ExeName) + 'spa.lan', InitLanguage);
+    WriteLanguageToFile(ExtractFilePath(Application.ExeName) + 'spa.lan', InitLanguage);
   chkNormalizar.Visible := FileExists(ExtractFilePath(Application.ExeName) + 'mp3gain.exe');
-  with TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini')) do
+  with TIniFile.Create(IniFileName) do
   try
     if not ValueExists('AUDIO','DEVICE') then
       WriteInteger('AUDIO','DEVICE',-1);
@@ -784,12 +672,26 @@ begin
   end;
   BASS_Init(lDevice,44100,0,Handle, nil);
   if FileExists(lLanguageFile) then
-    LoadLanguage(ExtractFilePath(Application.ExeName) + lLanguageFile)
+    LoadLanguage(lLanguageFile)
   else
     ChangeLanguageFile;
+  InitKey;
   FProgressBars := TObjectList.Create;
   FProgressLabels := TObjectList.Create;
   FProgressRowCount := 0;
+  //add encryption Key shortcuts
+  lDir := ExtractFileDir(Application.ExeName);
+  AddFilesToMenuItem(lDir,'.key',mnuChangeKey,mniChangeKeyShortcut);
+  lDir := lDir + '\Keys';
+  if DirectoryExists(lDir) then
+    AddFilesToMenuItem(lDir,'.key',mnuChangeKey,mniChangeKeyShortcut);
+  lMenuItem := TMenuItem.Create(mnuChangeKey);
+  lMenuItem.Caption := '-';;
+  mnuChangeKey.Add(lMenuItem);
+  lMenuItem := TMenuItem.Create(mnuChangeKey);
+  lMenuItem.Caption := Language.mnuChangeKey_other_caption;
+  lMenuItem.OnClick := mnuChangeKeyClick;
+  mnuChangeKey.Add(lMenuItem);
 end;
 
 procedure TfrmSmp2MP3.FormDestroy(Sender: TObject);
@@ -814,162 +716,60 @@ begin
 end;
 
 procedure TfrmSmp2MP3.InitKey;
-//Initialize the Key to Encrypt/decrypt smp files with the "audiocuentos" format.
+  //**************************************************************************//
+  //Initialize the GlobalKey to Encrypt/decrypt smp files with the "audiocuentos" format.
+  function lDefaultKey : TAlgorithm;
+  begin
+    Result.Name := 'Audiocuentos';
+    Result.RotateDirection := rdNone;
+    Result.RotateTime := rtBeforeXOR;
+    Result.RotateCount := 0;
+    Result.XorKey := CommaTextToXorKey('0x51,0x23,0x98,0x56');
+    Result.ChangeFileExt := true;
+  end;
+  //**************************************************************************//
 var
+  lSectionExists : boolean;
   lKeyFilename : string;
-  i : integer;
-  lKeys : tstringlist;
 begin
-  lKeyFilename := ChangeFileExt(Application.ExeName,'.ini');
+  lKeyFilename := IniFileName;
   with TIniFile.Create(lKeyFilename) do
   try
-    if not SectionExists('KEY') then
-    begin
-      WriteString('KEY','NAME','Audiocuentos.key');
-      WriteInteger('KEY','ROTATEDIRECTION',ord(rdNone));
-      WriteInteger('KEY','ROTATETIME',ord(rtBeforeXOR));
-      WriteInteger('KEY','ROTATECOUNT',0);
-      WriteString('KEY','XORKEY','0x51,0x23,0x98,0x56');
-      WriteBool('KEY','CHANGEFILEEXT',true);
-    end;
-
-    Key.Name := ReadString('KEY','NAME','');
-    key.RotateDirection := TRotateDirection(ReadInteger('KEY','ROTATEDIRECTION',ord(rdNone)));
-    key.RotateTime := TRotateTime(ReadInteger('KEY','ROTATETIME',ord(rtBeforeXOR)));
-    key.RotateCount := ReadInteger('KEY','ROTATECOUNT',0);
-    key.ChangeFileExt := ReadBool('KEY','CHANGEFILEEXT',true);
-    lKeys := TStringList.Create;
-    try
-      lKeys.CommaText := ReadString('KEY','XORKEY','0x51,0x23,0x98,0x56');
-      SetLength(Key.XorKey,lKeys.Count);
-      for i := 0 to lKeys.Count - 1 do
-        Key.XorKey[i] := StrToInt(lKeys[i]);
-    finally
-      lKeys.Free;
-    end;
+    lSectionExists := SectionExists('KEY');
   finally
     Free;
   end;
+
+  if lSectionExists then
+    GlobalKey := LoadKeyFromFile(lKeyFilename)
+  else
+  begin
+    OpenDialog.Title := Language.mnuChangeKey_caption;
+    OpenDialog.Filter := '*.key|*.key';
+    OpenDialog.InitialDir := ExtractFileDir(Application.ExeName);
+    OpenDialog.FileName := '';
+    if OpenDialog.Execute(Handle) then
+    begin
+      if FileExists(OpenDialog.FileName) then
+        GlobalKey := LoadKeyFromFile(OpenDialog.FileName)
+      else
+        GlobalKey := lDefaultKey;
+    end
+    else
+      GlobalKey := lDefaultKey;
+    SaveKeyToFile(lKeyFilename,GlobalKey);
+  end;
+
   PlayerKeyIndex := 0;
 
-  ChangeEncryptCaptions;
-end;
-
-function TfrmSmp2MP3.InitLanguage: TLanguage;
-//Default language values
-begin
-  result.frmSmp2Mp3_caption := 'Convertidor SMP <-> MP3';
-  result.gbSingleFile_caption := 'Convertir un solo archivo';
-  result.btnConvertSingle_caption := 'Convertir';
-  result.lblSOrigen_caption := 'Origen:';
-  result.gbConvertBatch_caption := 'Convertir todos los archivos de un directorio';
-  result.lblBOrigen_caption := 'Origen:';
-  result.btnBatchConvert_caption := 'Convertir';
-  result.chkNormalizar_caption := 'Normalizar';
-  result.MESSAGES_FILE_NOT_FOUND := 'No se encuentra el archivo: %s.';
-  result.MESSAGES_SOURCE_DIR_NOT_FOUND := 'No existe el directorio origen.';
-  result.MESSAGES_CONVERTION_TYPE_NOT_SELECTED := 'No se ha seleccionado el tipo de conversión.';
-  result.MESSAGES_REPLACE_FILES_WARNING := 'Este proceso reemplazará los archivos %s que puedan existir en el mismo directorio en que se encuentran los archivos origen. ¿Aún así desea continuar?';
-  result.MESSAGES_FILES_OF_TYPE_NOT_FOUND := 'No se encontraron archivos %s a convertir.';
-  result.MESSAGES_CONVERTING_FILES := 'Convirtiendo archivos ...';
-  result.MESSAGES_PLEASE_WAIT := 'Por favor espere ...';
-  result.MESSAGES_CONVERTION_CANCELLED := 'Se cancelo el proceso, no todos los archivos fueron convertidos.';
-  result.MESSAGES_CONVERSION_ENDED := 'La conversión ha terminado.';
-  result.MESSAGES_SELECTED_FILE_DONT_EXISTS := 'El archivo seleccionado no existe.';
-  result.MESSAGES_CONVERT := 'Convertir';
-  result.MESSAGES_CONVERT_TO := 'Convertir a %s';
-  result.MESSAGES_CONVERTING_FILE := 'Convirtiendo archivo ...';
-  result.MESSAGES_OVERWRITE_PROMPT := 'El archivo destino ya existe, si continua se sobreescribirá su contenido. ¿Aún así desea continuar?';
-  result.MESSAGES_COULD_NOT_CREATE_STREAM := 'No fué posible crear el stream (%s)';
-  result.MESSAGES_COULD_NOT_PLAY_FILE := 'No se le pudo dar play (%s)';
-  result.CAPTION_NORMALIZE_BEFORE := 'Normalizar mp3 antes de convertirlo';
-  result.CAPTION_NORMALIZE_AFTER := 'Normalizar mp3 resultante.';
-  result.CAPTION_ENCRYPT := 'Encriptar (.mp3 -> .smp)';
-  result.CAPTION_DECRYPT := 'Desencriptar (.smp -> .mp3)';
-  result.CAPTION_NORMALIZING := 'Normalizando';
-  result.CAPTION_PROCESSING := 'Procesando';
-  result.CAPTION_SELECT_DIR := 'Seleccionar directorio';
-  result.CAPTION_SAVE_TO := 'Guardar en';
-  result.mnuConfig_caption := 'Configuración';
-  result.mnuChangeKey_caption := 'Cambiar clave de encriptación';
-  result.mnuChangelanguage_caption := 'Cambiar idioma';
-  result.frmKey_caption := 'Cambiar llave';
-  result.frmKey_btnOK_caption := 'Aceptar';
-  result.frmKey_btnCancel_caption := 'Cancelar';
-  result.frmKey_gbRotate_caption := 'Rotar bits';
-  result.frmKey_gbXORkey_caption := 'Clave XOR';
-  result.frmKey_lblTimes_caption := 'Veces';
-  result.frmKey_lblTime_caption := 'Momento';
-  result.frmKey_chkChangeExt_Caption := 'Cambiar extensión de archivo (smp <-> mp3)';
-  result.frmKey_rgRotate_disabled := 'Deshabilitado';
-  result.frmKey_rgRotate_right := 'Derecha';
-  result.frmKey_rgRotate_left := 'Izquierda';
-  result.frmKey_cboTime_beforeXOR := 'Antes de XOR';
-  result.frmKey_cboTime_afterXOR := 'Después de XOR';
-  result.frmKey_SaveToFile_caption := 'Guardar llave como';
-  result.frmKey_LoadFromFile_caption := 'Cargar llave';
+  ChangeCaptions;
 end;
 
 procedure TfrmSmp2MP3.LoadLanguage(AFilename: string);
 //Load language from file and apply values
 begin
-  Language := InitLanguage;
-  with TIniFile.Create(AFilename) do
-  try
-    Language.frmSmp2Mp3_caption                      := ReadString('frmSmp2Mp3'                  ,'CAPTION'                      ,Language.frmSmp2Mp3_caption                      );
-    Language.gbSingleFile_caption                    := ReadString('gbSingleFile'                ,'CAPTION'                      ,Language.gbSingleFile_caption                    );
-    Language.btnConvertSingle_caption                := ReadString('btnConvertSingle'            ,'CAPTION'                      ,Language.btnConvertSingle_caption                );
-    Language.lblSOrigen_caption                      := ReadString('lblSOrigen'                  ,'CAPTION'                      ,Language.lblSOrigen_caption                      );
-    Language.gbConvertBatch_caption                  := ReadString('gbConvertBatch'              ,'CAPTION'                      ,Language.gbConvertBatch_caption                  );
-    Language.lblBOrigen_caption                      := ReadString('lblBOrigen'                  ,'CAPTION'                      ,Language.lblBOrigen_caption                      );
-    Language.btnBatchConvert_caption                 := ReadString('btnBatchConvert'             ,'CAPTION'                      ,Language.btnBatchConvert_caption                 );
-    Language.chkNormalizar_caption                   := ReadString('chkNormalizar'               ,'CAPTION'                      ,Language.chkNormalizar_caption                   );
-    Language.mnuConfig_caption                       := ReadString('mnuConfig'                   ,'CAPTION'                      ,Language.mnuConfig_caption                       );
-    Language.mnuChangeKey_caption                    := ReadString('mnuChangeKey'                ,'CAPTION'                      ,Language.mnuChangeKey_caption                    );
-    Language.mnuChangelanguage_caption               := ReadString('mnuChangelanguage'           ,'CAPTION'                      ,Language.mnuChangelanguage_caption               );
-    Language.frmKey_caption                          := ReadString('frmKey'                      ,'CAPTION'                      ,Language.frmKey_caption                          );
-    Language.frmKey_btnOK_caption                    := ReadString('frmKey_btnOK'                ,'CAPTION'                      ,Language.frmKey_btnOK_caption                    );
-    Language.frmKey_btnCancel_caption                := ReadString('frmKey_btnCancel'            ,'CAPTION'                      ,Language.frmKey_btnCancel_caption                );
-    Language.frmKey_gbRotate_caption                 := ReadString('frmKey_gbRotate'             ,'CAPTION'                      ,Language.frmKey_gbRotate_caption                 );
-    Language.frmKey_gbXORkey_caption                 := ReadString('frmKey_gbXORkey'             ,'CAPTION'                      ,Language.frmKey_gbXORkey_caption                 );
-    Language.frmKey_lblTimes_caption                 := ReadString('frmKey_lblTimes'             ,'CAPTION'                      ,Language.frmKey_lblTimes_caption                 );
-    Language.frmKey_lblTime_caption                  := ReadString('frmKey_lblTime'              ,'CAPTION'                      ,Language.frmKey_lblTime_caption                  );
-    Language.frmKey_chkChangeExt_Caption             := ReadString('frmKey_chkChangeExt'         ,'CAPTION'                      ,Language.frmKey_chkChangeExt_Caption             );
-    Language.frmKey_rgRotate_disabled                := ReadString('frmKey_rgRotate_disabled'    ,'CAPTION'                      ,Language.frmKey_rgRotate_disabled                );
-    Language.frmKey_rgRotate_right                   := ReadString('frmKey_rgRotate_right'       ,'CAPTION'                      ,Language.frmKey_rgRotate_right                   );
-    Language.frmKey_rgRotate_left                    := ReadString('frmKey_rgRotate_left'        ,'CAPTION'                      ,Language.frmKey_rgRotate_left                    );
-    Language.frmKey_cboTime_beforeXOR                := ReadString('frmKey_cboTime_beforeXOR'    ,'CAPTION'                      ,Language.frmKey_cboTime_beforeXOR                );
-    Language.frmKey_cboTime_afterXOR                 := ReadString('frmKey_cboTime_afterXOR'     ,'CAPTION'                      ,Language.frmKey_cboTime_afterXOR                 );
-    Language.frmKey_SaveToFile_caption               := ReadString('frmKey_SaveToFile'           ,'CAPTION'                      ,Language.frmKey_SaveToFile_caption               );
-    Language.frmKey_LoadFromFile_caption             := ReadString('frmKey_LoadFromFile'         ,'CAPTION'                      ,Language.frmKey_LoadFromFile_caption             );
-    Language.MESSAGES_FILE_NOT_FOUND                 := ReadString('MESSAGES'                    ,'FILE_NOT_FOUND'               ,Language.MESSAGES_FILE_NOT_FOUND                 );
-    Language.MESSAGES_SOURCE_DIR_NOT_FOUND           := ReadString('MESSAGES'                    ,'SOURCE_DIR_NOT_FOUND'         ,Language.MESSAGES_SOURCE_DIR_NOT_FOUND           );
-    Language.MESSAGES_CONVERTION_TYPE_NOT_SELECTED   := ReadString('MESSAGES'                    ,'CONVERTION_TYPE_NOT_SELECTED' ,Language.MESSAGES_CONVERTION_TYPE_NOT_SELECTED   );
-    Language.MESSAGES_REPLACE_FILES_WARNING          := ReadString('MESSAGES'                    ,'REPLACE_FILES_WARNING'        ,Language.MESSAGES_REPLACE_FILES_WARNING          );
-    Language.MESSAGES_FILES_OF_TYPE_NOT_FOUND        := ReadString('MESSAGES'                    ,'FILES_OF_TYPE_NOT_FOUND'      ,Language.MESSAGES_FILES_OF_TYPE_NOT_FOUND        );
-    Language.MESSAGES_CONVERTING_FILES               := ReadString('MESSAGES'                    ,'CONVERTING_FILES'             ,Language.MESSAGES_CONVERTING_FILES               );
-    Language.MESSAGES_PLEASE_WAIT                    := ReadString('MESSAGES'                    ,'PLEASE_WAIT'                  ,Language.MESSAGES_PLEASE_WAIT                    );
-    Language.MESSAGES_CONVERTION_CANCELLED           := ReadString('MESSAGES'                    ,'CONVERTION_CANCELLED'         ,Language.MESSAGES_CONVERTION_CANCELLED           );
-    Language.MESSAGES_CONVERSION_ENDED               := ReadString('MESSAGES'                    ,'CONVERSION_ENDED'             ,Language.MESSAGES_CONVERSION_ENDED               );
-    Language.MESSAGES_SELECTED_FILE_DONT_EXISTS      := ReadString('MESSAGES'                    ,'SELECTED_FILE_DONT_EXISTS'    ,Language.MESSAGES_SELECTED_FILE_DONT_EXISTS      );
-    Language.MESSAGES_CONVERT                        := ReadString('MESSAGES'                    ,'CONVERT'                      ,Language.MESSAGES_CONVERT                        );
-    Language.MESSAGES_CONVERT_TO                     := ReadString('MESSAGES'                    ,'CONVERT_TO'                   ,Language.MESSAGES_CONVERT_TO                     );
-    Language.MESSAGES_CONVERTING_FILE                := ReadString('MESSAGES'                    ,'CONVERTING_FILE'              ,Language.MESSAGES_CONVERTING_FILE                );
-    Language.MESSAGES_OVERWRITE_PROMPT               := ReadString('MESSAGES'                    ,'OVERWRITE_PROMPT'             ,Language.MESSAGES_OVERWRITE_PROMPT               );
-    Language.MESSAGES_COULD_NOT_CREATE_STREAM        := ReadString('MESSAGES'                    ,'COULD_NOT_CREATE_STREAM'      ,Language.MESSAGES_COULD_NOT_CREATE_STREAM        );
-    Language.MESSAGES_COULD_NOT_PLAY_FILE            := ReadString('MESSAGES'                    ,'COULD_NOT_PLAY_FILE'          ,Language.MESSAGES_COULD_NOT_PLAY_FILE            );
-    Language.CAPTION_NORMALIZE_BEFORE                := ReadString('CAPTION'                     ,'NORMALIZE_BEFORE'             ,Language.CAPTION_NORMALIZE_BEFORE                );
-    Language.CAPTION_NORMALIZE_AFTER                 := ReadString('CAPTION'                     ,'NORMALIZE_AFTER'              ,Language.CAPTION_NORMALIZE_AFTER                 );
-    Language.CAPTION_ENCRYPT                         := ReadString('CAPTION'                     ,'ENCRYPT'                      ,Language.CAPTION_ENCRYPT                         );
-    Language.CAPTION_DECRYPT                         := ReadString('CAPTION'                     ,'DECRYPT'                      ,Language.CAPTION_DECRYPT                         );
-    Language.CAPTION_NORMALIZING                     := ReadString('CAPTION'                     ,'NORMALIZING'                  ,Language.CAPTION_NORMALIZING                     );
-    Language.CAPTION_PROCESSING                      := ReadString('CAPTION'                     ,'PROCESSING'                   ,Language.CAPTION_PROCESSING                      );
-    Language.CAPTION_SELECT_DIR                      := ReadString('CAPTION'                     ,'SAVE_AS'                      ,Language.CAPTION_SELECT_DIR                      );
-    Language.CAPTION_SAVE_TO                         := ReadString('CAPTION'                     ,'SAVE_TO'                      ,Language.CAPTION_SAVE_TO                         );
-  finally
-    Free;
-  end;
-  ChangeCaption;
+  Language := LoadLanguageFromFile(AFilename);
+  ChangeCaptions;
   gbSingleFile.Caption := Language.gbSingleFile_caption;
   btnConvertSingle.Caption := Language.btnConvertSingle_caption;
   lblSOrigen.Caption := Language.lblSOrigen_caption;
@@ -980,7 +780,26 @@ begin
   mnuConfig.Caption := Language.mnuConfig_caption;
   mnuChangeKey.Caption := Language.mnuChangeKey_caption;
   mnuChangelanguage.Caption := Language.mnuChangelanguage_caption;
-  ChangeEncryptCaptions;
+  mniGenerateMCT.Caption := Language.mniGenerateMCT_caption;
+  ChangeCaptions;
+end;
+
+procedure TfrmSmp2MP3.mniChangeKeyShortcut(Sender: TObject);
+begin
+  GlobalKey := FindAndLoadKey((TMenuItem(Sender).Caption));
+  SaveKeyToFile(IniFileName,GlobalKey);
+  ChangeCaptions;
+end;
+
+procedure TfrmSmp2MP3.mniGenerateMCTClick(Sender: TObject);
+begin
+  with TfrmMCT.Create(nil) do
+  try
+    Language := self.Language;
+    ShowModal;
+  finally
+    Free;
+  end;
 end;
 
 procedure TfrmSmp2MP3.mnuChangeKeyClick(Sender: TObject);
@@ -988,28 +807,13 @@ procedure TfrmSmp2MP3.mnuChangeKeyClick(Sender: TObject);
 begin
   with TfrmKey.Create(nil) do
   try
-    Caption := Language.frmKey_caption;
-    btnOK.Caption := Language.frmKey_btnOK_caption;
-    btnCancel.Caption := Language.frmKey_btnCancel_caption;
-    gbRotate.Caption := Language.frmKey_gbRotate_caption;
-    gbXORkey.Caption := Language.frmKey_gbXORkey_caption;
-    lblTimes.Caption := Language.frmKey_lblTimes_caption;
-    lblTime.Caption := Language.frmKey_lblTime_caption;
-    chkChangeExt.Caption := Language.frmKey_chkChangeExt_Caption;
-    rgRotate.Items.Clear;
-    rgRotate.Items.Add(Language.frmKey_rgRotate_disabled);
-    rgRotate.Items.Add(Language.frmKey_rgRotate_right);
-    rgRotate.Items.Add(Language.frmKey_rgRotate_left);
-    cboTime.items.Clear;
-    cboTime.items.Add(Language.frmKey_cboTime_beforeXOR);
-    cboTime.items.Add(Language.frmKey_cboTime_afterXOR);
-    LoadFromFileCaption := Language.frmKey_LoadFromFile_caption;
-    SaveToFileCaption := Language.frmKey_SaveToFile_caption;
+    Language := self.Language;
+    Key := GlobalKey;
     if ShowModal = mrOk then
     begin
-      LastSelectedKeyFile := SelectedFile;
-      InitKey;
-      ChangebtnConvertSingleCaption;
+      GlobalKey := Key;
+      SaveKeyToFile(IniFileName,GlobalKey);
+      ChangeCaptions;
     end;
   finally
     Free;
@@ -1225,21 +1029,6 @@ begin
   end;
 end;
 
-procedure TfrmSmp2MP3.SetLastSelectedKeyFile(const Value: string);
-var
-  lKeyName : string;
-begin
-  FLastSelectedKeyFile := Value;
-  lKeyName := ExtractFileName(Value);
-  with TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini')) do
-  try
-    WriteString('KEY','NAME',lKeyName);
-  finally
-    Free;
-  end;
-  ChangeCaption;
-end;
-
 procedure TfrmSmp2MP3.SetProgress(AnIndex, AProgress: integer);
 var
   lProgress : TGauge;
@@ -1297,66 +1086,6 @@ begin
   try
     pbAudioLevel.Position := lRightdB;
   except
-  end;
-end;
-
-procedure TfrmSmp2MP3.WriteLanguage(AFilename: string; ALanguage: TLanguage);
-//write language file
-begin
-  with TIniFile.Create(AFilename) do
-  try
-    WriteString('frmSmp2Mp3'                ,'CAPTION'                      ,ALanguage.frmSmp2Mp3_caption                      );
-    WriteString('gbSingleFile'              ,'CAPTION'                      ,Alanguage.gbSingleFile_caption                    );
-    WriteString('btnConvertSingle'          ,'CAPTION'                      ,Alanguage.btnConvertSingle_caption                );
-    WriteString('lblSOrigen'                ,'CAPTION'                      ,Alanguage.lblSOrigen_caption                      );
-    WriteString('gbConvertBatch'            ,'CAPTION'                      ,Alanguage.gbConvertBatch_caption                  );
-    WriteString('lblBOrigen'                ,'CAPTION'                      ,Alanguage.lblBOrigen_caption                      );
-    WriteString('btnBatchConvert'           ,'CAPTION'                      ,Alanguage.btnBatchConvert_caption                 );
-    WriteString('chkNormalizar'             ,'CAPTION'                      ,Alanguage.chkNormalizar_caption                   );
-    WriteString('mnuConfig'                 ,'CAPTION'                      ,ALanguage.mnuConfig_caption                       );
-    WriteString('mnuChangeKey'              ,'CAPTION'                      ,ALanguage.mnuChangeKey_caption                    );
-    WriteString('mnuChangelanguage'         ,'CAPTION'                      ,ALanguage.mnuChangelanguage_caption               );
-    WriteString('frmKey'                    ,'CAPTION'                      ,ALanguage.frmKey_caption                          );
-    WriteString('frmKey_btnOK'              ,'CAPTION'                      ,ALanguage.frmKey_btnOK_caption                    );
-    WriteString('frmKey_btnCancel'          ,'CAPTION'                      ,ALanguage.frmKey_btnCancel_caption                );
-    WriteString('frmKey_gbRotate'           ,'CAPTION'                      ,ALanguage.frmKey_gbRotate_caption                 );
-    WriteString('frmKey_gbXORkey'           ,'CAPTION'                      ,ALanguage.frmKey_gbXORkey_caption                 );
-    WriteString('frmKey_lblTimes'           ,'CAPTION'                      ,ALanguage.frmKey_lblTimes_caption                 );
-    WriteString('frmKey_lblTime'            ,'CAPTION'                      ,ALanguage.frmKey_lblTime_caption                  );
-    WriteString('frmKey_chkChangeExt'       ,'CAPTION'                      ,ALanguage.frmKey_chkChangeExt_Caption             );
-    WriteString('frmKey_rgRotate_disabled'  ,'CAPTION'                      ,ALanguage.frmKey_rgRotate_disabled                );
-    WriteString('frmKey_rgRotate_right'     ,'CAPTION'                      ,ALanguage.frmKey_rgRotate_right                   );
-    WriteString('frmKey_rgRotate_left'      ,'CAPTION'                      ,ALanguage.frmKey_rgRotate_left                    );
-    WriteString('frmKey_cboTime_beforeXOR'  ,'CAPTION'                      ,ALanguage.frmKey_cboTime_beforeXOR                );
-    WriteString('frmKey_cboTime_afterXOR'   ,'CAPTION'                      ,ALanguage.frmKey_cboTime_afterXOR                 );
-    WriteString('frmKey_SaveToFile'         ,'CAPTION'                      ,ALanguage.frmKey_SaveToFile_caption               );
-    WriteString('frmKey_LoadFromFile'       ,'CAPTION'                      ,ALanguage.frmKey_LoadFromFile_caption             );
-    WriteString('MESSAGES'                  ,'FILE_NOT_FOUND'               ,Alanguage.MESSAGES_FILE_NOT_FOUND                 );
-    WriteString('MESSAGES'                  ,'SOURCE_DIR_NOT_FOUND'         ,Alanguage.MESSAGES_SOURCE_DIR_NOT_FOUND           );
-    WriteString('MESSAGES'                  ,'CONVERTION_TYPE_NOT_SELECTED' ,Alanguage.MESSAGES_CONVERTION_TYPE_NOT_SELECTED   );
-    WriteString('MESSAGES'                  ,'REPLACE_FILES_WARNING'        ,Alanguage.MESSAGES_REPLACE_FILES_WARNING          );
-    WriteString('MESSAGES'                  ,'FILES_OF_TYPE_NOT_FOUND'      ,Alanguage.MESSAGES_FILES_OF_TYPE_NOT_FOUND        );
-    WriteString('MESSAGES'                  ,'CONVERTING_FILES'             ,Alanguage.MESSAGES_CONVERTING_FILES               );
-    WriteString('MESSAGES'                  ,'PLEASE_WAIT'                  ,Alanguage.MESSAGES_PLEASE_WAIT                    );
-    WriteString('MESSAGES'                  ,'CONVERTION_CANCELLED'         ,Alanguage.MESSAGES_CONVERTION_CANCELLED           );
-    WriteString('MESSAGES'                  ,'CONVERSION_ENDED'             ,Alanguage.MESSAGES_CONVERSION_ENDED               );
-    WriteString('MESSAGES'                  ,'SELECTED_FILE_DONT_EXISTS'    ,Alanguage.MESSAGES_SELECTED_FILE_DONT_EXISTS      );
-    WriteString('MESSAGES'                  ,'CONVERT'                      ,Alanguage.MESSAGES_CONVERT                        );
-    WriteString('MESSAGES'                  ,'CONVERT_TO'                   ,Alanguage.MESSAGES_CONVERT_TO                     );
-    WriteString('MESSAGES'                  ,'CONVERTING_FILE'              ,Alanguage.MESSAGES_CONVERTING_FILE                );
-    WriteString('MESSAGES'                  ,'OVERWRITE_PROMPT'             ,Alanguage.MESSAGES_OVERWRITE_PROMPT               );
-    WriteString('MESSAGES'                  ,'COULD_NOT_CREATE_STREAM'      ,Alanguage.MESSAGES_COULD_NOT_CREATE_STREAM        );
-    WriteString('MESSAGES'                  ,'COULD_NOT_PLAY_FILE'          ,Alanguage.MESSAGES_COULD_NOT_PLAY_FILE            );
-    WriteString('CAPTION'                   ,'NORMALIZE_BEFORE'             ,ALanguage.CAPTION_NORMALIZE_BEFORE                );
-    WriteString('CAPTION'                   ,'NORMALIZE_AFTER'              ,ALanguage.CAPTION_NORMALIZE_AFTER                 );
-    WriteString('CAPTION'                   ,'ENCRYPT'                      ,ALanguage.CAPTION_ENCRYPT                         );
-    WriteString('CAPTION'                   ,'DECRYPT'                      ,ALanguage.CAPTION_DECRYPT                         );
-    WriteString('CAPTION'                   ,'NORMALIZING'                  ,ALanguage.CAPTION_NORMALIZING                     );
-    WriteString('CAPTION'                   ,'PROCESSING'                   ,ALanguage.CAPTION_PROCESSING                      );
-    WriteString('CAPTION'                   ,'SAVE_AS'                      ,ALanguage.CAPTION_SELECT_DIR                      );
-    WriteString('CAPTION'                   ,'SAVE_TO'                      ,ALanguage.CAPTION_SAVE_TO                         );
-  finally
-    Free;
   end;
 end;
 

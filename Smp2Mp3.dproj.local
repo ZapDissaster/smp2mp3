@@ -6,5 +6,8 @@
     <Transaction>2020/12/08 11:55:18.932.dproj,D:\Proyectos\Project1.dproj=D:\Proyectos\Audiocuentos Salvat\Smp2Mp3.dproj</Transaction>
     <Transaction>2021/01/22 13:36:01.178.pas,D:\Proyectos\Audiocuentos Salvat\Unit1.pas=D:\Proyectos\Audiocuentos Salvat\KeyFrm.pas</Transaction>
     <Transaction>2021/01/22 13:36:01.178.dfm,D:\Proyectos\Audiocuentos Salvat\Unit1.dfm=D:\Proyectos\Audiocuentos Salvat\KeyFrm.dfm</Transaction>
+    <Transaction>2021/01/30 16:30:38.512.pas,D:\Proyectos\Audiocuentos Salvat\Unit1.pas=D:\Proyectos\Audiocuentos Salvat\mctFrm.pas</Transaction>
+    <Transaction>2021/01/30 16:30:38.512.dfm,D:\Proyectos\Audiocuentos Salvat\Unit1.dfm=D:\Proyectos\Audiocuentos Salvat\mctFrm.dfm</Transaction>
+    <Transaction>2021/01/31 11:48:31.155.pas,D:\Proyectos\Audiocuentos Salvat\Unit1.pas=D:\Proyectos\Audiocuentos Salvat\smp2mp3Utils.pas</Transaction>
   </Transactions>
 </BorlandProject>
