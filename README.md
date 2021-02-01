@@ -8,6 +8,7 @@ Audiocubes are cube like audio players with an integrated speaker, that will aut
 - Encrypt or decrypt a single file.
 - Encrypt or decrypt a complete directory.
 - Play an encrypted audio file without need to decrypt it first.
+- Generate .mct files for use with [Mifare Classic Tools](https://play.google.com/store/apps/details?id=de.syss.MifareClassicTool) to write tags.
 - Encryption can be easily changed.
   - An Hexadecimal key can be defined to be used in XOR bitwise operations
   - Bit rotation can be specified to be applied before or after applying the XOR operation.
@@ -16,13 +17,13 @@ Audiocubes are cube like audio players with an integrated speaker, that will aut
 - No instalation needed, just download [Smp2Mp3.zip](https://github.com/ZapDissaster/smp2mp3/blob/main/Bin/Smp2Mp3.zip), unzip and run smp2mp3.exe
 
 ### Similar projects
-Joaquim S. has a similar proyect that works on Python and in addition to encrypt/decrypt the files can create the .mct files to use with the Mifare Classic Tools app to write the RFID Tags for the Hachette (Salvat) audiocube, in addition he has collected a lot of information regarding this kind of cubes.
+Joaquim S. has a similar proyect that works on Python. In addition he has collected a lot of information regarding this kind of cubes.
 His project can be foud here: https://github.com/oyooyo/audiocube
 
 ### Thanks to:  
 - Marc D. from https://www.mikrocontroller.net/ for publishing the initial file encryption and RFID tag structure.  
 - Joachim S. for figuring out the encryption of the Lidl Storyland audio files.  
-- Cean D. for providing the files for figuring out the encryption for the green cubes (My first alphabet).
+- Cean D. for providing example files for figuring out the encryption for the green cubes (My first alphabet).
 
 ### 3rd Party software used:  
 - BASS (https://www.un4seen.com/): Library used to play the audio files.  
