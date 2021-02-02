@@ -491,9 +491,20 @@ procedure TfrmSmp2MP3.ChangeCaptions;
 var
   lDestExt : string;
 begin
-  caption := Language.frmSmp2Mp3_caption;
+  caption := Language.frmSmp2Mp3_caption + ' v' + VersionString;
+//  if GlobalKey.Name <> '' then
+//    caption := caption + ' (' + ExtractFileName(GlobalKey.Name) + ')';
   if GlobalKey.Name <> '' then
-    caption := caption + ' (' + ExtractFileName(GlobalKey.Name) + ')';
+  begin
+    gbSingleFile.Caption := Language.gbSingleFile_caption + ' (' + ExtractFileName(GlobalKey.Name) + ')';
+    gbConvertBatch.Caption := Language.gbConvertBatch_caption + ' (' + ExtractFileName(GlobalKey.Name) + ')';
+  end
+  else
+  begin
+    gbSingleFile.Caption := Language.gbSingleFile_caption;
+    gbConvertBatch.Caption := Language.gbConvertBatch_caption;
+  end;
+
   rbSingleSmp2Mp3.Visible := GlobalKey.RotateDirection <> rdNone;
   rbSingleMp32Smp.Visible := GlobalKey.RotateDirection <> rdNone;
   rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT;

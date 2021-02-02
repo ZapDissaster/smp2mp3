@@ -57,9 +57,9 @@ object frmMCT: TfrmMCT
     ItemHeight = 13
     ItemIndex = 0
     TabOrder = 0
-    Text = 'Hachette (Salvat)'
+    Text = 'Salvat (Hachette)'
     Items.Strings = (
-      'Hachette (Salvat)')
+      'Salvat (Hachette)')
   end
   object gbExample: TGroupBox
     Left = 8

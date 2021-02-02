@@ -101,11 +101,50 @@ procedure AddFilesToMenuItem(ADirectory, AnExtension : string; AMenuItem : TMenu
 function FindAndLoadKey(AKeyname : string) : TAlgorithm;
 function IniFileName : string;
 function StripFileName(AFileName : string) : string;
+function VersionString : string;
 
 implementation
 
 uses
-  SysUtils, Forms, IniFiles, Contnrs, StrUtils;
+  SysUtils, Forms, IniFiles, Contnrs, StrUtils, Windows;
+
+function VersionString : string;
+var
+  verblock:PVSFIXEDFILEINFO;
+  versionMS,versionLS:cardinal;
+  verlen:cardinal;
+  rs:TResourceStream;
+  m:TMemoryStream;
+  p:pointer;
+  s:cardinal;
+begin
+  result := '';
+  m:=TMemoryStream.Create;
+  try
+    rs:=TResourceStream.CreateFromID(HInstance,1,RT_VERSION);
+    try
+      m.CopyFrom(rs,rs.Size);
+    finally
+      rs.Free;
+    end;
+    m.Position:=0;
+    if VerQueryValue(m.Memory,'\',pointer(verblock),verlen) then
+      begin
+        VersionMS:=verblock.dwFileVersionMS;
+        VersionLS:=verblock.dwFileVersionLS;
+        Result:= IntToStr(versionMS shr 16)+'.'+
+                 IntToStr(versionMS and $FFFF)+'.'+
+                 IntToStr(VersionLS shr 16)+'.'+
+                 IntToStr(VersionLS and $FFFF);
+      end;
+    if VerQueryValue(m.Memory,PChar('\\StringFileInfo\\'+
+      IntToHex(GetThreadLocale,4)+IntToHex(GetACP,4)+'\\FileDescription'),p,s) or
+        VerQueryValue(m.Memory,'\\StringFileInfo\\040904E4\\FileDescription',p,s) then //en-us
+          Result:=PChar(p)+' '+Result;
+  finally
+    m.Free;
+  end;
+end;
 
 function StripFileName(AFileName : string) : string;
 begin
@@ -190,7 +229,7 @@ begin
       end;
     end;
   finally
-    findclose(SearchRec);
+    SysUtils.FindClose(SearchRec);
   end;
 end;
 
@@ -514,7 +553,7 @@ begin
       end;
     end;
   finally
-    findclose(SearchRec);
+    Sysutils.FindClose(SearchRec);
   end;
 end;
 
