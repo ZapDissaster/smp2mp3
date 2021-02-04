@@ -94,7 +94,8 @@ function LoadKeyFromFile(AFileName : string) : TAlgorithm;
 procedure SaveKeyToFile(AFileName : string; AKey : TAlgorithm);
 function XorKeyToCommaText (AXORKey : TByteArray) : string;
 function CommaTextToXorKey (ACommaText : string) : TByteArray;
-function InitLanguage: TLanguage;
+function InitLanguageSpa: TLanguage;
+function InitLanguageEng: TLanguage;
 function LoadLanguageFromFile(AFilename: string) : TLanguage;
 procedure WriteLanguageToFile(AFilename: string; ALanguage: TLanguage);
 procedure AddFilesToMenuItem(ADirectory, AnExtension : string; AMenuItem : TMenuItem; AOnClick : TNotifyEvent);
@@ -102,11 +103,23 @@ function FindAndLoadKey(AKeyname : string) : TAlgorithm;
 function IniFileName : string;
 function StripFileName(AFileName : string) : string;
 function VersionString : string;
+function LanguagesPath : string;
+function KeysPath : string;
 
 implementation
 
 uses
   SysUtils, Forms, IniFiles, Contnrs, StrUtils, Windows;
+
+function KeysPath: string;
+begin
+  result := ExtractFilePath(Application.ExeName) + 'Keys\';
+end;
+
+function LanguagesPath: string;
+begin
+  result := ExtractFilePath(Application.ExeName) + 'Languages\';
+end;
 
 function VersionString : string;
 var
@@ -309,7 +322,7 @@ end;
 function LoadLanguageFromFile(AFilename: string) : TLanguage;
 //Load language from file and apply values
 begin
-  result := InitLanguage;
+  result := InitLanguageEng;
   with TIniFile.Create(AFilename) do
   try
     result.frmSmp2Mp3_caption                      := ReadString('frmSmp2Mp3'                  ,'CAPTION'                      ,result.frmSmp2Mp3_caption                      );
@@ -380,8 +393,76 @@ begin
   end;
 end;
 
-function InitLanguage: TLanguage;
-//Default language values
+function InitLanguageEng: TLanguage;
+//Default language values (eng)
+begin
+  result.frmSmp2Mp3_caption := 'SMP <-> MP3 converter';
+  result.gbSingleFile_caption := 'Convert a single file';
+  result.btnConvertSingle_caption := 'Convert';
+  result.lblSOrigen_caption := 'Source:';
+  result.gbConvertBatch_caption := 'Convert all files in a directory';
+  result.lblBOrigen_caption := 'Source:';
+  result.btnBatchConvert_caption := 'Convert';
+  result.chkNormalizar_caption := 'Normalize';
+  result.mnuConfig_caption := 'Configuration';
+  result.mnuChangeKey_caption := 'Change encryption key';
+  result.mnuChangeKey_other_caption := 'Other...';
+  result.mnuChangelanguage_caption := 'Change language';
+  result.mniGenerateMCT_caption := '.mct generator';
+  result.frmKey_caption := 'Change key';
+  result.frmKey_btnOK_caption := 'OK';
+  result.frmKey_btnCancel_caption := 'Cancel';
+  result.frmKey_gbRotate_caption := 'Rotate bits';
+  result.frmKey_gbXORkey_caption := 'XOR Key';
+  result.frmKey_lblTimes_caption := 'Times';
+  result.frmKey_lblTime_caption := 'Moment';
+  result.frmKey_chkChangeExt_Caption := 'Change file extension (smp <-> mp3)';
+  result.frmKey_rgRotate_disabled := 'Disabled';
+  result.frmKey_rgRotate_right := 'Right';
+  result.frmKey_rgRotate_left := 'Left';
+  result.frmKey_cboTime_beforeXOR := 'Before XOR';
+  result.frmKey_cboTime_afterXOR := 'After XOR';
+  result.frmKey_SaveToFile_caption := 'Save key as';
+  result.frmKey_LoadFromFile_caption := 'Load key';
+  result.frmMct_Caption := '.mct files generator';
+  result.frmMct_lblTipo_Caption := 'Type';
+  result.frmMct_lblDir_Caption := 'Directory';
+  result.frmMct_lblFile_Caption := 'File';
+  result.frmMct_lblToFile_Caption := 'to';
+  result.frmMct_chkMultiple_Caption := 'Generate multiple files';
+  result.frmMct_chkUseHex_Caption := 'Use hexadecimal values';
+  result.frmMct_gbExample_Caption := 'Files to be played with the generated tags';
+  result.frmMct_btnGenerate_Caption := 'Generate';
+  result.frmMct_btnClose_Caption := 'Close';
+  result.MESSAGES_FILES_GENERATED := 'Files generated successfully.';
+  result.MESSAGES_FILE_NOT_FOUND := 'File not found: %s.';
+  result.MESSAGES_SOURCE_DIR_NOT_FOUND := 'Source directory does not exists.';
+  result.MESSAGES_CONVERTION_TYPE_NOT_SELECTED := 'onvertion type not selected.';
+  result.MESSAGES_REPLACE_FILES_WARNING := 'This will replace all %s files that could exists in the same directory as the source files. Do you want to continue?';
+  result.MESSAGES_FILES_OF_TYPE_NOT_FOUND := 'No  %s files found to convert.';
+  result.MESSAGES_CONVERTING_FILES := 'Processing files ...';
+  result.MESSAGES_PLEASE_WAIT := 'Please wait ...';
+  result.MESSAGES_CONVERTION_CANCELLED := 'Process cancelled, not all files were converted.';
+  result.MESSAGES_CONVERSION_ENDED := 'Conversion ended successfully.';
+  result.MESSAGES_SELECTED_FILE_DONT_EXISTS := 'The selected file does not exists.';
+  result.MESSAGES_CONVERT := 'Convert';
+  result.MESSAGES_CONVERT_TO := 'Convert to %s';
+  result.MESSAGES_CONVERTING_FILE := 'Processing file ...';
+  result.MESSAGES_OVERWRITE_PROMPT := 'File already exists, it will be overwritten. Do you want to continue?';
+  result.MESSAGES_COULD_NOT_CREATE_STREAM := 'Could not create stream (%s)';
+  result.MESSAGES_COULD_NOT_PLAY_FILE := 'Could not play stream (%s)';
+  result.CAPTION_NORMALIZE_BEFORE := 'Normalize mp3 before conversion.';
+  result.CAPTION_NORMALIZE_AFTER := 'Normalize resulting mp3.';
+  result.CAPTION_ENCRYPT := 'Encrypt (.mp3 -> .smp)';
+  result.CAPTION_DECRYPT := 'Decrypt (.smp -> .mp3)';
+  result.CAPTION_NORMALIZING := 'Normalizing';
+  result.CAPTION_PROCESSING := 'Processing';
+  result.CAPTION_SELECT_DIR := 'Select directory';
+  result.CAPTION_SAVE_TO := 'Save to';
+end;
+
+function InitLanguageSpa: TLanguage;
+//Default language values (spa)
 begin
   result.frmSmp2Mp3_caption := 'Convertidor SMP <-> MP3';
   result.gbSingleFile_caption := 'Convertir un solo archivo';

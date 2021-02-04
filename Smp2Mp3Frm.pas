@@ -36,6 +36,7 @@ type
     OpenDialog: TOpenDialog;
     pnlprogress: TPanel;
     mniGenerateMCT: TMenuItem;
+    tbVol: TTrackBar;
     procedure btnConvertSingleClick(Sender: TObject);
     procedure edFileNameChange(Sender: TObject);
     procedure rbBatchSmp2Mp3Click(Sender: TObject);
@@ -51,6 +52,7 @@ type
     procedure sbSelectDirectoryClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure mniGenerateMCTClick(Sender: TObject);
+    procedure tbVolChange(Sender: TObject);
   private
     { Private declarations }
     FFilesFound : TStringList;
@@ -62,7 +64,8 @@ type
     procedure ConvertSingleFile(ASourceFileName, ADestFileName : string; AEncrypt : boolean);
     procedure ChangeBatchConvertCaption;
     function ConvertExt(AFileName : string) : string;
-    procedure LoadLanguage(AFilename : string);
+    procedure LoadLanguage(AFilename : string); overload;
+    procedure LoadLanguage(ALanguage : TLanguage); overload;
     function ChangeLanguageFile : string;
     function NormalizeAudio(AFile: string): boolean;
     procedure ChangeCaptions;
@@ -74,8 +77,10 @@ type
     procedure IncProgress( AnIndex : integer; AnAmount : integer = 1);
     procedure SetProgress( AnIndex, AProgress : integer);
     function ProgressOf(AnIndex : integer) : integer;
+    procedure SetVolume(const Value: integer);
   public
     { Public declarations }
+    procedure DoOnStopPlay;
   end;
 
   procedure BassFileCloseProc(user: Pointer); stdcall;
@@ -105,6 +110,16 @@ uses
   StrUtils, Math, IniFiles, KeyFrm, FileCtrl, mctFrm;
 
 {$R *.dfm}
+
+procedure EndSyncProc(hSync: Thandle; hChan: DWORD; data: DWORD; MyObject: Pointer); stdcall;
+//Cuando termina la reproducción en el TRdxdxPlayer llama a su procedimiento stop
+var
+  lForm : TfrmSmp2MP3;
+begin
+  lForm := TfrmSmp2MP3(MyObject);
+  lForm.DoOnStopPlay;
+end;
+
 
 procedure AddHourGlassCursor;
 begin
@@ -459,7 +474,12 @@ begin
         exit;
     end;
     //Call conversion procedure
-    ConvertSingleFile(lSourceFileName,lDestFileName, rbSingleMp32Smp.Checked);
+    btnPlay.Enabled := false;
+    try
+      ConvertSingleFile(lSourceFileName,lDestFileName, rbSingleMp32Smp.Checked);
+    finally
+      btnPlay.Enabled := true;
+    end;
   finally
     Enabled := true;
   end;
@@ -533,10 +553,13 @@ function TfrmSmp2MP3.ChangeLanguageFile : string;
 //asks for langujage file and loads it.
 begin
   result := '';
-  OpenDialog.Title := Language.mnuChangelanguage_caption;
+  if Language.mnuChangelanguage_caption <> '' then
+    OpenDialog.Title := Language.mnuChangelanguage_caption
+  else
+    OpenDialog.Title := 'Select language file';
   OpenDialog.Filter := '*.lan|*.lan';
-  OpenDialog.InitialDir := ExtractFileDir(Application.ExeName);
-  OpenDialog.FileName := 'spa.lan';
+  OpenDialog.InitialDir := LanguagesPath;
+  OpenDialog.FileName := 'eng.lan';
   if OpenDialog.Execute(Handle) then
   begin
     if FileExists(OpenDialog.FileName) then
@@ -648,6 +671,13 @@ begin
 //  pnlProgress.ClientHeight := TOP_MARGIN + ( ROW_HEIGHT * FProgressBars.Count ) + BOTTOM_MARGIN;
 end;
 
+procedure TfrmSmp2MP3.DoOnStopPlay;
+begin
+  BASS_StreamFree(Player);
+  btnConvertSingle.Enabled := true;
+  Player := 0;
+end;
+
 procedure TfrmSmp2MP3.edFileNameChange(Sender: TObject);
 //change button caption when the filename changes
 begin
@@ -664,12 +694,17 @@ procedure TfrmSmp2MP3.FormCreate(Sender: TObject);
 var
   lDevice : integer;
   lLanguageFile : string;
-  lDir : string;
   lMenuItem : TMenuItem;
 begin
+  ForceDirectories(LanguagesPath);
+  ForceDirectories(KeysPath);
+  Player := 0;
   lLanguageFile := '';
-  if not FileExists(ExtractFilePath(Application.ExeName) + 'spa.lan') then
-    WriteLanguageToFile(ExtractFilePath(Application.ExeName) + 'spa.lan', InitLanguage);
+  LoadLanguage(InitLanguageEng);
+  if not FileExists(LanguagesPath + 'spa.lan') then
+    WriteLanguageToFile(LanguagesPath + 'spa.lan', InitLanguageSpa);
+  if not FileExists(LanguagesPath + 'eng.lan') then
+    WriteLanguageToFile(LanguagesPath + 'eng.lan', InitLanguageEng);
   chkNormalizar.Visible := FileExists(ExtractFilePath(Application.ExeName) + 'mp3gain.exe');
   with TIniFile.Create(IniFileName) do
   try
@@ -691,11 +726,7 @@ begin
   FProgressLabels := TObjectList.Create;
   FProgressRowCount := 0;
   //add encryption Key shortcuts
-  lDir := ExtractFileDir(Application.ExeName);
-  AddFilesToMenuItem(lDir,'.key',mnuChangeKey,mniChangeKeyShortcut);
-  lDir := lDir + '\Keys';
-  if DirectoryExists(lDir) then
-    AddFilesToMenuItem(lDir,'.key',mnuChangeKey,mniChangeKeyShortcut);
+  AddFilesToMenuItem(KeysPath,'.key',mnuChangeKey,mniChangeKeyShortcut);
   lMenuItem := TMenuItem.Create(mnuChangeKey);
   lMenuItem.Caption := '-';;
   mnuChangeKey.Add(lMenuItem);
@@ -757,7 +788,7 @@ begin
   begin
     OpenDialog.Title := Language.mnuChangeKey_caption;
     OpenDialog.Filter := '*.key|*.key';
-    OpenDialog.InitialDir := ExtractFileDir(Application.ExeName);
+    OpenDialog.InitialDir := KeysPath;
     OpenDialog.FileName := '';
     if OpenDialog.Execute(Handle) then
     begin
@@ -776,10 +807,9 @@ begin
   ChangeCaptions;
 end;
 
-procedure TfrmSmp2MP3.LoadLanguage(AFilename: string);
-//Load language from file and apply values
+procedure TfrmSmp2MP3.LoadLanguage(ALanguage: TLanguage);
 begin
-  Language := LoadLanguageFromFile(AFilename);
+  Language := ALanguage;
   ChangeCaptions;
   gbSingleFile.Caption := Language.gbSingleFile_caption;
   btnConvertSingle.Caption := Language.btnConvertSingle_caption;
@@ -793,6 +823,12 @@ begin
   mnuChangelanguage.Caption := Language.mnuChangelanguage_caption;
   mniGenerateMCT.Caption := Language.mniGenerateMCT_caption;
   ChangeCaptions;
+end;
+
+procedure TfrmSmp2MP3.LoadLanguage(AFilename: string);
+//Load language from file and apply values
+begin
+  LoadLanguage(LoadLanguageFromFile(AFilename));
 end;
 
 procedure TfrmSmp2MP3.mniChangeKeyShortcut(Sender: TObject);
@@ -1001,11 +1037,13 @@ begin
   end
   else //Play directly
     Player := BASS_StreamCreateFile(False,PChar(edFileName.Text),0,0,0);
-    
+  btnConvertSingle.Enabled := false;
   if Player = 0 then
     ShowMessage(format(Language.MESSAGES_COULD_NOT_CREATE_STREAM,[BassErrorToString(BASS_ErrorGetCode)]))
   else
   begin
+    BASS_ChannelSetSync(Player, BASS_SYNC_END, 0, EndSyncProc , Self);
+    SetVolume(100 - tbVol.Position);
     if not BASS_ChannelPlay(Player, true) then
       ShowMessage(format(Language.MESSAGES_COULD_NOT_PLAY_FILE,[BassErrorToString(BASS_ErrorGetCode)]))
   end;
@@ -1015,7 +1053,7 @@ procedure TfrmSmp2MP3.btnStopClick(Sender: TObject);
 //Stop playing file
 begin
   BASS_ChannelStop(Player);
-  Player := 0;
+  DoOnStopPlay;
 end;
 
 procedure TfrmSmp2MP3.rbBatchMp32SmpClick(Sender: TObject);
@@ -1055,6 +1093,27 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure TfrmSmp2MP3.SetVolume(const Value: integer);
+var
+  lVol : integer;
+begin
+  if player = 0 then
+    exit;
+  if Value > 90 then
+    lVol := 90
+  else if Value < 0 then
+    lVol := 0
+  else
+    lVol := Value;
+
+//  if lVol <> 0 then
+//    lVol := round(20 * Log10(lVol / 32768)) + 90;
+
+  if player <> 0 then
+    BASS_ChannelSetAttribute(Player,BASS_ATTRIB_VOL,lVol / 90);
+
+end;
+
 procedure TfrmSmp2MP3.sbSelectDirectoryClick(Sender: TObject);
 var
   lDirectory : string;
@@ -1062,6 +1121,11 @@ begin
   lDirectory := '';
   if SelectDirectory(Language.CAPTION_SELECT_DIR,'', lDirectory,[],nil) then
     edDirName.Text := lDirectory;
+end;
+
+procedure TfrmSmp2MP3.tbVolChange(Sender: TObject);
+begin
+  SetVolume(100 - tbVol.Position);
 end;
 
 procedure TfrmSmp2MP3.tmrAudioLevelTimer(Sender: TObject);
@@ -1095,7 +1159,7 @@ begin
 
   //Actualiza los niveles de audio de los RLeds independientes
   try
-    pbAudioLevel.Position := lRightdB;
+    pbAudioLevel.Position := trunc(lRightdB * ((100 - tbVol.Position) / 100));
   except
   end;
 end;

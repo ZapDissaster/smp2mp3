@@ -107,7 +107,6 @@ object frmKey: TfrmKey
     Caption = '&OK'
     TabOrder = 2
     OnClick = btnOKClick
-    ExplicitTop = 262
   end
   object btnCancel: TButton
     Left = 299
@@ -118,7 +117,6 @@ object frmKey: TfrmKey
     Caption = '&Cancel'
     TabOrder = 3
     OnClick = btnCancelClick
-    ExplicitLeft = 300
   end
   object gbXORkey: TGroupBox
     Left = 8

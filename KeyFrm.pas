@@ -192,7 +192,7 @@ procedure TfrmKey.sbSaveKeyClick(Sender: TObject);
 var
   lFileName : string;
 begin
-  if PromptForFileName(lFileName,'*.key|*.key','.key',Language.frmKey_SaveToFile_caption,ExtractFileDir(Application.ExeName),true) then
+  if PromptForFileName(lFileName,'*.key|*.key','.key',Language.frmKey_SaveToFile_caption,KeysPath,true) then
   begin
     SaveFile(lFileName, lFileName);
     SelectedKeyName := lFileName;
@@ -203,7 +203,7 @@ procedure TfrmKey.sbLoadKeyClick(Sender: TObject);
 var
   lFileName : string;
 begin
-  if PromptForFileName(lFileName,'*.key|*.key','.key',Language.frmKey_LoadFromFile_caption,ExtractFileDir(Application.ExeName)) then
+  if PromptForFileName(lFileName,'*.key|*.key','.key',Language.frmKey_LoadFromFile_caption,KeysPath) then
   begin
     LoadFile(lFileName);
     SelectedKeyName := lFileName;
