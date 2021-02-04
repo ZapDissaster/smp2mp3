@@ -25,7 +25,7 @@ CAPTION=Schlüssel ändern
 [mnuChangeKey_other]
 CAPTION=Sonstiges...
 [mniGenerateMCT]
-CAPTION=.mct-Generator
+CAPTION=TAG-Datei-Generator
 [frmKey_btnOK]
 CAPTION=OK
 [frmKey_btnCancel]
@@ -55,7 +55,7 @@ CAPTION=Schlüssel speichern
 [frmKey_LoadFromFile]
 CAPTION=Schlüssel laden
 [frmMct_Caption]
-CAPTION=.mct-Datei-Generator
+CAPTION=TAG-Datei-Generator
 [frmMct_lblTipo]
 CAPTION=Typ
 [frmMct_lblDir]

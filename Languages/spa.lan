@@ -23,7 +23,7 @@ CAPTION=Otra...
 [mnuChangelanguage]
 CAPTION=Cambiar idioma
 [mniGenerateMCT]
-CAPTION=Generador .mct
+CAPTION=Generador archivos TAG
 [frmKey]
 CAPTION=Cambiar clave
 [frmKey_btnOK]
@@ -55,7 +55,7 @@ CAPTION=Guardar Clave como
 [frmKey_LoadFromFile]
 CAPTION=Cargar Clave
 [frmMct_Caption]
-CAPTION=Generador de archivos .mct
+CAPTION=Generador de archivos TAG
 [frmMct_lblTipo]
 CAPTION=Tipo
 [frmMct_lblDir]
