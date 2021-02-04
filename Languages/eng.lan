@@ -1,7 +1,7 @@
 [frmSmp2Mp3]
 CAPTION=SMP <-> MP3 converter
 [gbSingleFile]
-CAPTION=convert a single file
+CAPTION=Convert a single file
 [btnConvertSingle]
 CAPTION=Convert
 [lblSOrigen]
@@ -18,8 +18,12 @@ CAPTION=Normalize
 CAPTION=Configuration
 [mnuChangeKey]
 CAPTION=Change encryption key
+[mnuChangeKey_other]
+CAPTION=Other...
 [mnuChangelanguage]
 CAPTION=Change language
+[mniGenerateMCT]
+CAPTION=.mct generator
 [frmKey]
 CAPTION=Change key
 [frmKey_btnOK]
@@ -50,11 +54,32 @@ CAPTION=After XOR
 CAPTION=Save key as
 [frmKey_LoadFromFile]
 CAPTION=Load key
+[frmMct_Caption]
+CAPTION=.mct files generator
+[frmMct_lblTipo]
+CAPTION=Type
+[frmMct_lblDir]
+CAPTION=Directory
+[frmMct_lblFile]
+CAPTION=File
+[frmMct_lblToFile]
+CAPTION=to
+[frmMct_chkMultiple]
+CAPTION=Generate multiple files
+[frmMct_chkUseHex]
+CAPTION=Use hexadecimal values
+[frmMct_gbExample]
+CAPTION=Files to be played with the generated tags
+[frmMct_btnGenerate]
+CAPTION=Generate
+[frmMct_btnClose]
+CAPTION=Close
 [MESSAGES]
+FILES_GENERATED=Files generated successfully.
 FILE_NOT_FOUND=File not found: %s.
 SOURCE_DIR_NOT_FOUND=Source directory does not exists.
-CONVERTION_TYPE_NOT_SELECTED=Convertion type not selected.
-REPLACE_FILES_WARNING=This will replace all %s files that could exists in the same directory as the source files.\r\nDo you want to continue?
+CONVERTION_TYPE_NOT_SELECTED=onvertion type not selected.
+REPLACE_FILES_WARNING=This will replace all %s files that could exists in the same directory as the source files. Do you want to continue?
 FILES_OF_TYPE_NOT_FOUND=No  %s files found to convert.
 CONVERTING_FILES=Processing files ...
 PLEASE_WAIT=Please wait ...
@@ -74,3 +99,5 @@ ENCRYPT=Encrypt (.mp3 -> .smp)
 DECRYPT=Decrypt (.smp -> .mp3)
 NORMALIZING=Normalizing
 PROCESSING=Processing
+SAVE_AS=Select directory
+SAVE_TO=Save to

@@ -18,10 +18,14 @@ CAPTION=Normalizar
 CAPTION=Configuración
 [mnuChangeKey]
 CAPTION=Cambiar clave de encriptación
+[mnuChangeKey_other]
+CAPTION=Otra...
 [mnuChangelanguage]
 CAPTION=Cambiar idioma
+[mniGenerateMCT]
+CAPTION=Generador .mct
 [frmKey]
-CAPTION=Cambiar llave
+CAPTION=Cambiar clave
 [frmKey_btnOK]
 CAPTION=Aceptar
 [frmKey_btnCancel]
@@ -47,10 +51,31 @@ CAPTION=Antes de XOR
 [frmKey_cboTime_afterXOR]
 CAPTION=Después de XOR
 [frmKey_SaveToFile]
-CAPTION=Guardar llave como
+CAPTION=Guardar Clave como
 [frmKey_LoadFromFile]
-CAPTION=Cargar llave
+CAPTION=Cargar Clave
+[frmMct_Caption]
+CAPTION=Generador de archivos .mct
+[frmMct_lblTipo]
+CAPTION=Tipo
+[frmMct_lblDir]
+CAPTION=Directorio
+[frmMct_lblFile]
+CAPTION=Archivo
+[frmMct_lblToFile]
+CAPTION=al
+[frmMct_chkMultiple]
+CAPTION=Generar varios archivos
+[frmMct_chkUseHex]
+CAPTION=Usar hexadecimales
+[frmMct_gbExample]
+CAPTION=Ejemplo de archivos que se reproducen con estas etiquetas
+[frmMct_btnGenerate]
+CAPTION=Generar
+[frmMct_btnClose]
+CAPTION=Cerrar
 [MESSAGES]
+FILES_GENERATED=Los archivos fueron generados exitosamente
 FILE_NOT_FOUND=No se encuentra el archivo: %s.
 SOURCE_DIR_NOT_FOUND=No existe el directorio origen.
 CONVERTION_TYPE_NOT_SELECTED=No se ha seleccionado el tipo de conversión.
