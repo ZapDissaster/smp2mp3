@@ -8,7 +8,8 @@ Audiocubes are cube like audio players with an integrated speaker, that will aut
 - Encrypt or decrypt a single file.
 - Encrypt or decrypt a complete directory.
 - Play an encrypted audio file without need to decrypt it first.
-- Generate .mct files for use with [Mifare Classic Tools](https://play.google.com/store/apps/details?id=de.syss.MifareClassicTool) to write tags.
+- Generate .mct files for use with [Mifare Classic Tools](https://play.google.com/store/apps/details?id=de.syss.MifareClassicTool) to write tags for Salvat/hachette cubes.
+- Generate .csv files for use with [NFC TagWriter by NXP](https://play.google.com/store/apps/details?id=com.nxp.nfc.tagwriter) to write tags for Lidl cubes.
 - Encryption can be easily changed.
   - An Hexadecimal key can be defined to be used in XOR bitwise operations
   - Bit rotation can be specified to be applied before or after applying the XOR operation.
