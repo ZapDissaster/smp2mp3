@@ -408,7 +408,7 @@ begin
   result.mnuChangeKey_caption := 'Change encryption key';
   result.mnuChangeKey_other_caption := 'Other...';
   result.mnuChangelanguage_caption := 'Change language';
-  result.mniGenerateMCT_caption := '.mct generator';
+  result.mniGenerateMCT_caption := 'TAG file generator';
   result.frmKey_caption := 'Change key';
   result.frmKey_btnOK_caption := 'OK';
   result.frmKey_btnCancel_caption := 'Cancel';
@@ -424,7 +424,7 @@ begin
   result.frmKey_cboTime_afterXOR := 'After XOR';
   result.frmKey_SaveToFile_caption := 'Save key as';
   result.frmKey_LoadFromFile_caption := 'Load key';
-  result.frmMct_Caption := '.mct files generator';
+  result.frmMct_Caption := 'TAG files generator';
   result.frmMct_lblTipo_Caption := 'Type';
   result.frmMct_lblDir_Caption := 'Directory';
   result.frmMct_lblFile_Caption := 'File';
@@ -472,7 +472,7 @@ begin
   result.lblBOrigen_caption := 'Origen:';
   result.btnBatchConvert_caption := 'Convertir';
   result.chkNormalizar_caption := 'Normalizar';
-  result.frmMct_Caption := 'Generador de archivos .mct';
+  result.frmMct_Caption := 'Generador de archivos TAG';
   result.frmMct_lblTipo_Caption := 'Tipo';
   result.frmMct_lblDir_Caption := 'Directorio';
   result.frmMct_lblFile_Caption := 'Archivo';
@@ -511,7 +511,7 @@ begin
   result.mnuChangeKey_caption := 'Cambiar clave de encriptación';
   result.mnuChangeKey_other_caption := 'Otra...';
   result.mnuChangelanguage_caption := 'Cambiar idioma';
-  result.mniGenerateMCT_caption := 'Generador .mct';
+  result.mniGenerateMCT_caption := 'Generador archivos TAG';
   result.frmKey_caption := 'Cambiar clave';
   result.frmKey_btnOK_caption := 'Aceptar';
   result.frmKey_btnCancel_caption := 'Cancelar';

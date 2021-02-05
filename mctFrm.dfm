@@ -53,13 +53,15 @@ object frmMCT: TfrmMCT
     Width = 161
     Height = 21
     Style = csDropDownList
-    Enabled = False
     ItemHeight = 13
     ItemIndex = 0
     TabOrder = 0
     Text = 'Salvat (Hachette)'
+    OnChange = cboTipoChange
     Items.Strings = (
-      'Salvat (Hachette)')
+      'Salvat (Hachette)'
+      'Lidl Storyland'
+      'Migros Storybox')
   end
   object gbExample: TGroupBox
     Left = 8
@@ -69,8 +71,6 @@ object frmMCT: TfrmMCT
     Anchors = [akLeft, akRight, akBottom]
     Caption = 'Ejemplo de archivos que reproduce'
     TabOrder = 1
-    ExplicitTop = 204
-    ExplicitWidth = 792
     object memExample: TMemo
       Left = 2
       Top = 15
@@ -84,8 +84,6 @@ object frmMCT: TfrmMCT
       Color = clBtnFace
       ReadOnly = True
       TabOrder = 0
-      ExplicitWidth = 443
-      ExplicitHeight = 48
     end
   end
   object edDir: TEdit
@@ -175,7 +173,6 @@ object frmMCT: TfrmMCT
     Caption = 'Generar multiples archivos'
     TabOrder = 6
     OnClick = chkMultipleClick
-    ExplicitWidth = 550
   end
   object edToFile: TEdit
     Left = 188
@@ -226,8 +223,6 @@ object frmMCT: TfrmMCT
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Usar Hexadecimales'
     TabOrder = 9
-    Visible = False
-    ExplicitWidth = 550
   end
   object btnGenerate: TButton
     Left = 143
@@ -238,8 +233,6 @@ object frmMCT: TfrmMCT
     Caption = '&Generar'
     TabOrder = 10
     OnClick = btnGenerateClick
-    ExplicitLeft = 644
-    ExplicitTop = 268
   end
   object btnClose: TButton
     Left = 224
@@ -250,7 +243,5 @@ object frmMCT: TfrmMCT
     Caption = '&Cerrar'
     TabOrder = 11
     OnClick = btnCloseClick
-    ExplicitLeft = 725
-    ExplicitTop = 268
   end
 end
