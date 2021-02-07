@@ -5,7 +5,8 @@ uses
   Smp2Mp3Frm in 'Smp2Mp3Frm.pas' {frmSmp2MP3},
   KeyFrm in 'KeyFrm.pas' {frmKey},
   mctFrm in 'mctFrm.pas' {frmMCT},
-  smp2mp3Utils in 'smp2mp3Utils.pas';
+  smp2mp3Utils in 'smp2mp3Utils.pas',
+  OperationFra in 'OperationFra.pas' {FraOperation: TFrame};
 
 {$R *.res}
 

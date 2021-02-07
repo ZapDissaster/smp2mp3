@@ -1,9 +1,9 @@
 object frmKey: TfrmKey
   Left = 0
   Top = 0
-  Caption = 'Clave'
-  ClientHeight = 330
-  ClientWidth = 382
+  Caption = 'Algorithm'
+  ClientHeight = 497
+  ClientWidth = 552
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,14 +13,13 @@ object frmKey: TfrmKey
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  OnShow = FormShow
   DesignSize = (
-    382
-    330)
+    552
+    497)
   PixelsPerInch = 96
   TextHeight = 13
   object sbSaveKey: TSpeedButton
-    Left = 351
+    Left = 521
     Top = 8
     Width = 23
     Height = 22
@@ -46,9 +45,10 @@ object frmKey: TfrmKey
       B335D339FF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7FFF7F
       FF7FFF7FFF7F}
     OnClick = sbSaveKeyClick
+    ExplicitLeft = 351
   end
   object sbLoadKey: TSpeedButton
-    Left = 322
+    Left = 492
     Top = 8
     Width = 23
     Height = 22
@@ -97,117 +97,115 @@ object frmKey: TfrmKey
       FF161616161616121212121AFFFFFFFF1612121212121212121212121A1A1A1A
       1212121212121212121212121212121212121212121212121212}
     OnClick = sbLoadKeyClick
+    ExplicitLeft = 322
+  end
+  object lbloperations: TLabel
+    Left = 8
+    Top = 36
+    Width = 57
+    Height = 13
+    Caption = 'Operations:'
+  end
+  object lblSourceExt: TLabel
+    Left = 8
+    Top = 407
+    Width = 60
+    Height = 13
+    Anchors = [akLeft, akBottom]
+    Caption = 'Source ext.:'
+    ExplicitTop = 325
+  end
+  object lblDestExt: TLabel
+    Left = 8
+    Top = 434
+    Width = 49
+    Height = 13
+    Anchors = [akLeft, akBottom]
+    Caption = 'Dest ext.:'
+    ExplicitTop = 352
+  end
+  object sbAddOperation: TSpeedButton
+    Left = 45
+    Top = 55
+    Width = 23
+    Height = 22
+    Glyph.Data = {
+      36030000424D3603000000000000360000002800000010000000100000000100
+      18000000000000030000120B0000120B00000000000000000000FFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF3E9B462293311D
+      74301C6D2E117F213D9646FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFF259B3632DB5632D66034D35F20C4411F902EFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF398E4457ED7B41
+      E27645E17643D56531813AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFF56A35F5DE37F32C1642EBA5C42C6614C9551FFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFF4EB0562AA13841944945914A19912C4EE87153
+      EC8550EB8034D158108921458E4A39894220912F459E4EFFFFFFFFFFFF289B34
+      40E65D5DF07D5FDF7A40D86145E86F39CE6C39D76D2FD95B36D35A52D67142D4
+      641EC23F0D7B1DFFFFFFFFFFFF3990466CFF9260F98C52DA7C50E37B5EF28E5A
+      D78D53DB8941DF753ED96E3DC96B36D2673EDD691B6C2DFFFFFFFFFFFF38903C
+      76FFA377FA936ED39F63EE7F5FF59150E07956D59046DA7C42D77541CB733AD5
+      6C3DDF69126925FFFFFFFFFFFF3BAB475CF08C85FF9F89F0B769F88564FE9951
+      E78350E48646E97650E6746EEF8E5EF08036DD581D912EFFFFFFFFFFFF4DB544
+      2DA33C48A83D509A5A2AA52562F17E6EF98A5AEF8D3FD563188C2B4A92503D8D
+      462094303F9D48FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF66B07084EBB26A
+      CF9B49D37B5BDC7B5BA361FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFF3C9C317BFF957EFF9A5DF88F53E57535853EFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF36AC455FF38F75
+      FEA25FFF8B41E86332A642FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFF49B1403BAB474098443B924E279B3849A752FFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
+    OnClick = sbAddOperationClick
   end
   object btnOK: TButton
-    Left = 218
-    Top = 297
+    Left = 388
+    Top = 464
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
     Caption = '&OK'
-    TabOrder = 2
+    TabOrder = 0
     OnClick = btnOKClick
+    ExplicitTop = 382
   end
   object btnCancel: TButton
-    Left = 299
-    Top = 297
+    Left = 469
+    Top = 464
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
     Caption = '&Cancel'
-    TabOrder = 3
-    OnClick = btnCancelClick
-  end
-  object gbXORkey: TGroupBox
-    Left = 8
-    Top = 155
-    Width = 366
-    Height = 105
-    Caption = 'Clave XOR'
     TabOrder = 1
-    object memKey: TMemo
-      Left = 2
-      Top = 15
-      Width = 362
-      Height = 88
-      Align = alClient
-      PopupMenu = PopupMenu
-      TabOrder = 0
-      OnChange = memKeyChange
-    end
+    OnClick = btnCancelClick
+    ExplicitTop = 382
   end
-  object gbRotate: TGroupBox
-    Left = 8
+  object sbOperations: TScrollBox
+    Left = 104
     Top = 36
-    Width = 366
-    Height = 113
-    Caption = 'Rotar bits'
-    TabOrder = 0
-    DesignSize = (
-      366
-      113)
-    object lblTimes: TLabel
-      Left = 11
-      Top = 58
-      Width = 32
-      Height = 13
-      Caption = 'Veces:'
-    end
-    object lblTime: TLabel
-      Left = 11
-      Top = 86
-      Width = 48
-      Height = 13
-      Caption = 'Momento:'
-    end
-    object rgRotate: TRadioGroup
-      Left = 11
-      Top = 17
-      Width = 342
-      Height = 32
-      Anchors = [akLeft, akTop, akRight]
-      Columns = 3
-      Items.Strings = (
-        'Deshabilitado'
-        'Derecha'
-        'Izquierda')
-      TabOrder = 0
-      OnClick = rgRotateClick
-    end
-    object seTimes: TSpinEdit
-      Left = 49
-      Top = 55
-      Width = 32
-      Height = 22
-      MaxValue = 0
-      MinValue = 0
-      TabOrder = 1
-      Value = 0
-      OnChange = seTimesChange
-    end
-    object cboTime: TComboBox
-      Left = 65
-      Top = 83
-      Width = 288
-      Height = 21
-      Style = csDropDownList
-      ItemHeight = 13
-      ItemIndex = 0
-      TabOrder = 2
-      Text = 'Antes de XOR'
-      OnChange = cboTimeChange
-      Items.Strings = (
-        'Antes de XOR'
-        'Despu'#233's de XOR')
-    end
+    Width = 440
+    Height = 362
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    TabOrder = 2
+    ExplicitHeight = 280
   end
-  object chkChangeExt: TCheckBox
-    Left = 8
-    Top = 264
-    Width = 366
-    Height = 17
-    Caption = 'Cambiar extensi'#243'n de archivo (smp <-> mp3)'
+  object edSourceExt: TEdit
+    Left = 104
+    Top = 404
+    Width = 41
+    Height = 21
+    Anchors = [akLeft, akBottom]
+    TabOrder = 3
+    ExplicitTop = 322
+  end
+  object edDestExt: TEdit
+    Left = 104
+    Top = 431
+    Width = 41
+    Height = 21
+    Anchors = [akLeft, akBottom]
     TabOrder = 4
+    ExplicitTop = 349
   end
   object PopupMenu: TPopupMenu
     AutoHotkeys = maManual

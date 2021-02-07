@@ -417,10 +417,7 @@ begin
 end;
 
 procedure TfrmMCT.sbDirUpClick(Sender: TObject);
-var
-  lPadding : integer;
 begin
-  lPadding := SALVAT_DIR_INDEX_PADDING;
   edDir.Text := PaddedValueIndex(IncValue(edDir.Text),DirIndexPadding);
 end;
 

@@ -37,7 +37,6 @@ object frmSmp2MP3: TfrmSmp2MP3
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Convertir un solo archivo'
     TabOrder = 0
-    ExplicitWidth = 476
     DesignSize = (
       480
       121)
@@ -191,22 +190,22 @@ object frmSmp2MP3: TfrmSmp2MP3
     end
     object rbSingleSmp2Mp3: TRadioButton
       Left = 66
-      Top = 51
+      Top = 74
       Width = 152
       Height = 17
       Caption = '.smp -> .mp3'
-      Checked = True
-      TabOrder = 1
-      TabStop = True
+      TabOrder = 2
       OnClick = rbBatchSmp2Mp3Click
     end
     object rbSingleMp32Smp: TRadioButton
       Left = 66
-      Top = 74
+      Top = 51
       Width = 152
       Height = 17
       Caption = '.mp3 -> .smp'
-      TabOrder = 2
+      Checked = True
+      TabOrder = 1
+      TabStop = True
       OnClick = rbBatchMp32SmpClick
     end
     object edFileName: TEdit
@@ -252,7 +251,6 @@ object frmSmp2MP3: TfrmSmp2MP3
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Convertir todos los archivos de un directorio'
     TabOrder = 1
-    ExplicitWidth = 476
     DesignSize = (
       480
       106)
@@ -324,26 +322,25 @@ object frmSmp2MP3: TfrmSmp2MP3
       Caption = 'Convertir a .mp3'
       TabOrder = 0
       OnClick = btnBatchConvertClick
-      ExplicitWidth = 231
     end
     object rbBatchSmp2Mp3: TRadioButton
       Left = 66
-      Top = 51
+      Top = 75
       Width = 152
       Height = 17
       Caption = '.smp -> .mp3'
-      Checked = True
-      TabOrder = 1
-      TabStop = True
+      TabOrder = 2
       OnClick = rbBatchSmp2Mp3Click
     end
     object rbBatchMp32Smp: TRadioButton
       Left = 66
-      Top = 74
+      Top = 52
       Width = 152
       Height = 17
       Caption = '.mp3 -> .smp'
-      TabOrder = 2
+      Checked = True
+      TabOrder = 1
+      TabStop = True
       OnClick = rbBatchMp32SmpClick
     end
     object edDirName: TEdit
@@ -353,7 +350,6 @@ object frmSmp2MP3: TfrmSmp2MP3
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
-      ExplicitWidth = 354
     end
   end
   object chkNormalizar: TCheckBox
