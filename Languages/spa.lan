@@ -103,3 +103,5 @@ SAVE_AS=Seleccionar directorio
 SAVE_TO=Guardar en
 FIRST=Primero
 THEN=Después
+DO=Hacer
+FINALLY=Finalmente
