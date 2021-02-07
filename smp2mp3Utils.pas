@@ -96,6 +96,8 @@ type
     CAPTION_SAVE_TO : string;
     CAPTION_FIRST : string;
     CAPTION_THEN : string;
+    CAPTION_DO : string;
+    CAPTION_FINALLY : string;
   end;
 
 
@@ -330,8 +332,10 @@ begin
     WriteString('CAPTION'                         ,'PROCESSING'                   ,ALanguage.CAPTION_PROCESSING                       );
     WriteString('CAPTION'                         ,'SAVE_AS'                      ,ALanguage.CAPTION_SELECT_DIR                       );
     WriteString('CAPTION'                         ,'SAVE_TO'                      ,ALanguage.CAPTION_SAVE_TO                          );
-    WriteString('CAPTION'                         ,'FIRST'                        ,ALanguage.CAPTION_FIRST                           );
-    WriteString('CAPTION'                         ,'THEN'                         ,ALanguage.CAPTION_THEN                            );
+    WriteString('CAPTION'                         ,'FIRST'                        ,ALanguage.CAPTION_FIRST                            );
+    WriteString('CAPTION'                         ,'THEN'                         ,ALanguage.CAPTION_THEN                             );
+    WriteString('CAPTION'                         ,'DO'                           ,ALanguage.CAPTION_DO                               );
+    WriteString('CAPTION'                         ,'FINALLY'                      ,ALanguage.CAPTION_FINALLY                          );
   finally
     Free;
   end;
@@ -411,6 +415,8 @@ begin
     result.CAPTION_SAVE_TO                         := ReadString('CAPTION'                     ,'SAVE_TO'                      ,result.CAPTION_SAVE_TO                         );
     result.CAPTION_FIRST                           := ReadString('CAPTION'                     ,'FIRST'                        ,result.CAPTION_FIRST                           );
     result.CAPTION_THEN                            := ReadString('CAPTION'                     ,'THEN'                         ,result.CAPTION_THEN                            );
+    result.CAPTION_DO                              := ReadString('CAPTION'                     ,'DO'                           ,result.CAPTION_DO                              );
+    result.CAPTION_FINALLY                         := ReadString('CAPTION'                     ,'FINALLY'                      ,result.CAPTION_FINALLY                         );
   finally
     Free;
   end;
@@ -484,6 +490,8 @@ begin
   result.CAPTION_SAVE_TO                         := 'Save to';
   result.CAPTION_FIRST                           := 'First';
   result.CAPTION_THEN                            := 'Then';
+  result.CAPTION_DO                              := 'Do';
+  result.CAPTION_FINALLY                         := 'Finally';
 end;
 
 function InitLanguageSpa: TLanguage;
@@ -534,6 +542,8 @@ begin
   result.CAPTION_SAVE_TO                         := 'Guardar en';
   result.CAPTION_FIRST                           := 'Primero';
   result.CAPTION_THEN                            := 'Después';
+  result.CAPTION_DO                              := 'Hacer';
+  result.CAPTION_FINALLY                         := 'Finalmente';
   result.mnuConfig_caption                       := 'Configuración';
   result.mnuChangeKey_caption                    := 'Cambiar algoritmo de encriptación';
   result.mnuChangeKey_other_caption              := 'Otra...';

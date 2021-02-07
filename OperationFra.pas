@@ -42,8 +42,9 @@ type
     FOnDelete: TFraOperationEvent;
     FOnDown: TFraOperationEvent;
     FOnUp: TFraOperationEvent;
-    FIndex: integer;
+    FOperationIndex: integer;
     FLanguage: TLanguage;
+    FOperationCount: integer;
     function GetOperation: TAlgorithmOperation;
     procedure SetOperation(const Value: TAlgorithmOperation);
     procedure SetOnChange(const Value: TNotifyEvent);
@@ -51,8 +52,10 @@ type
     procedure SetOnDelete(const Value: TFraOperationEvent);
     procedure SetOnDown(const Value: TFraOperationEvent);
     procedure SetOnUp(const Value: TFraOperationEvent);
-    procedure SetIndex(const Value: integer);
+    procedure SetOperationIndex(const Value: integer);
     procedure SetLanguage(const Value: TLanguage);
+    procedure SetOperationCount(const Value: integer);
+    procedure ChangeOrdercaption;
     { Private declarations }
   public
     { Public declarations }
@@ -62,7 +65,8 @@ type
     property OnUp : TFraOperationEvent read FOnUp write SetOnUp;
     property OnDown : TFraOperationEvent read FOnDown write SetOnDown;
     property OnDelete : TFraOperationEvent read FOnDelete write SetOnDelete;
-    property Index : integer read FIndex write SetIndex;
+    property OperationIndex : integer read FOperationIndex write SetOperationIndex;
+    property OperationCount : integer read FOperationCount write SetOperationCount;
     property Language : TLanguage read FLanguage write SetLanguage;
   end;
 
@@ -79,6 +83,25 @@ begin
   else
     pcOperation.ActivePage := nil;
   DoOnChange(cboOperationType);
+end;
+
+procedure TFraOperation.ChangeOrdercaption;
+begin
+  if FOperationCount = 1 then
+    lblOrder.Caption := Language.CAPTION_DO
+  else
+  begin
+    if FOperationIndex = 0 then
+      lblOrder.Caption := Language.CAPTION_FIRST
+    else if FOperationIndex = FOperationCount - 1 then
+      lblOrder.Caption := Language.CAPTION_FINALLY
+    else
+      lblOrder.Caption := Language.CAPTION_THEN;
+    lblOrder.Caption := lblOrder.Caption + ' (' + IntToStr(FOperationIndex + 1) + ')';
+  end;
+  sbUp.Visible := FOperationIndex > 0;
+  sbDown.Visible := FOperationIndex < FOperationCount - 1;
+  sbDelete.Visible := FOperationCount > 1;
 end;
 
 procedure TFraOperation.DoOnChange(Sender: TObject);
@@ -144,14 +167,10 @@ begin
   DoOnChange(seRotateTimes);
 end;
 
-procedure TFraOperation.SetIndex(const Value: integer);
+procedure TFraOperation.SetOperationIndex(const Value: integer);
 begin
-  FIndex := Value;
-  if Value = 0 then
-    lblOrder.Caption := Language.CAPTION_FIRST
-  else
-    lblOrder.Caption := Language.CAPTION_THEN;
-  lblOrder.Caption := lblOrder.Caption + ' (' + IntToStr(Value + 1) + ')';
+  FOperationIndex := Value;
+  ChangeOrdercaption;
 end;
 
 procedure TFraOperation.SetLanguage(const Value: TLanguage);
@@ -199,6 +218,12 @@ begin
   finally
     FLoadingOperation := false;
   end;
+end;
+
+procedure TFraOperation.SetOperationCount(const Value: integer);
+begin
+  FOperationCount := Value;
+  ChangeOrdercaption;
 end;
 
 end.

@@ -37,6 +37,10 @@ type
     pnlprogress: TPanel;
     mniGenerateMCT: TMenuItem;
     tbVol: TTrackBar;
+    mniLanguageEng: TMenuItem;
+    mniLanguageSpa: TMenuItem;
+    mniLanguageOther: TMenuItem;
+    N1: TMenuItem;
     procedure btnConvertSingleClick(Sender: TObject);
     procedure edFileNameChange(Sender: TObject);
     procedure rbBatchSmp2Mp3Click(Sender: TObject);
@@ -47,12 +51,14 @@ type
     procedure tmrAudioLevelTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure mnuChangeKeyClick(Sender: TObject);
-    procedure mnuChangelanguageClick(Sender: TObject);
     procedure sbSelectFileClick(Sender: TObject);
     procedure sbSelectDirectoryClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure mniGenerateMCTClick(Sender: TObject);
     procedure tbVolChange(Sender: TObject);
+    procedure mniLanguageOtherClick(Sender: TObject);
+    procedure mniLanguageEngClick(Sender: TObject);
+    procedure mniLanguageSpaClick(Sender: TObject);
   private
     { Private declarations }
     FFilesFound : TStringList;
@@ -532,6 +538,7 @@ begin
   end;
   if assigned(FmniChangeKeyOther) then
     FmniChangeKeyOther.Caption :=Language.mnuChangeKey_other_caption;
+  mniLanguageOther.Caption :=Language.mnuChangeKey_other_caption;
   rbSingleSmp2Mp3.Visible := AlgorithmHasRotation(GlobalAlgorithm);
   rbSingleMp32Smp.Visible := AlgorithmHasRotation(GlobalAlgorithm);
   rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT + '(' + GlobalAlgorithm.SourceExt + ' -> ' + GlobalAlgorithm.DestExt + ')';
@@ -861,6 +868,33 @@ begin
   end;
 end;
 
+procedure TfrmSmp2MP3.mniLanguageEngClick(Sender: TObject);
+begin
+  LoadLanguage(InitLanguageEng);
+  with TIniFile.Create(IniFileName) do
+  try
+    WriteString('LANGUAGE','FILE',ExtractFilePath(Application.ExeName) + 'Languages\eng.lan');
+  finally
+    free;
+  end;
+end;
+
+procedure TfrmSmp2MP3.mniLanguageOtherClick(Sender: TObject);
+begin
+  ChangeLanguageFile;
+end;
+
+procedure TfrmSmp2MP3.mniLanguageSpaClick(Sender: TObject);
+begin
+  LoadLanguage(InitLanguageSpa);
+  with TIniFile.Create(IniFileName) do
+  try
+    WriteString('LANGUAGE','FILE',ExtractFilePath(Application.ExeName) + 'Languages\spa.lan');
+  finally
+    free;
+  end;
+end;
+
 procedure TfrmSmp2MP3.mnuChangeKeyClick(Sender: TObject);
 //Show form to change encryption keys
 begin
@@ -877,11 +911,6 @@ begin
   finally
     Free;
   end;
-end;
-
-procedure TfrmSmp2MP3.mnuChangelanguageClick(Sender: TObject);
-begin
-  ChangeLanguageFile;
 end;
 
 function TfrmSmp2MP3.NormalizeAudio(AFile: string): boolean;

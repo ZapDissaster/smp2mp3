@@ -93,7 +93,8 @@ begin
   for i := 0 to length(FFrames) - 1 do
   begin
     lFrame := FFrames[i];
-    lFrame.Index := i;
+    lFrame.OperationIndex := i;
+    lFrame.OperationCount := length(FFrames);
     lFrame.Left := 0;
     lFrame.Top := lNextTop;
     lNextTop := lNextTop + lFrame.Height;
@@ -121,7 +122,7 @@ procedure TfrmKey.DeleteOperationFrame(AFrame: TFraOperation);
 var
   i, lIndex : integer;
 begin
-  lIndex := AFrame.Index;
+  lIndex := AFrame.OperationIndex;
   AFrame.Free;
   for i := lIndex to Length(FFrames) - 2 do
     FFrames[i] := FFrames[i + 1];
@@ -175,7 +176,7 @@ var
   lDestIndex : integer;
   ltmpFrame : TFraOperation;
 begin
-  lIndex := AFrame.Index;
+  lIndex := AFrame.OperationIndex;
   if lIndex = (length(FFrames) - 1) then
     exit;
   lDestIndex := lIndex + 1;
@@ -191,7 +192,7 @@ var
   lDestIndex : integer;
   ltmpFrame : TFraOperation;
 begin
-  lIndex := AFrame.Index;
+  lIndex := AFrame.OperationIndex;
   if lIndex = 0 then
     exit;
   lDestIndex := lIndex - 1;

@@ -372,10 +372,25 @@ object frmSmp2MP3: TfrmSmp2MP3
       Caption = 'Configuraci'#243'n'
       object mnuChangeKey: TMenuItem
         Caption = 'Cambiar clave de encriptaci'#243'n'
+        OnClick = mnuChangeKeyClick
       end
       object mnuChangelanguage: TMenuItem
         Caption = 'Cambiar idioma'
-        OnClick = mnuChangelanguageClick
+        object mniLanguageEng: TMenuItem
+          Caption = 'English'
+          OnClick = mniLanguageEngClick
+        end
+        object mniLanguageSpa: TMenuItem
+          Caption = 'Espa'#241'ol'
+          OnClick = mniLanguageSpaClick
+        end
+        object N1: TMenuItem
+          Caption = '-'
+        end
+        object mniLanguageOther: TMenuItem
+          Caption = 'Otra'
+          OnClick = mniLanguageOtherClick
+        end
       end
     end
     object mniGenerateMCT: TMenuItem
