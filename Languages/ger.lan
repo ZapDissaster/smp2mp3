@@ -17,43 +17,43 @@ CAPTION=Normalisieren
 [mnuConfig]
 CAPTION=Konfiguration
 [mnuChangeKey]
-CAPTION=Schl√ºssel √§ndern
-[mnuChangelanguage]
-CAPTION=Sprache √§ndern
-[frmKey]
-CAPTION=Schl√ºssel √§ndern
+CAPTION=Algorithmus ‰ndern
 [mnuChangeKey_other]
 CAPTION=Sonstiges...
+[mnuChangelanguage]
+CAPTION=Sprache ‰ndern
 [mniGenerateMCT]
 CAPTION=TAG-Datei-Generator
+[frmKey]
+CAPTION=Schl¸ssel ‰ndern
 [frmKey_btnOK]
 CAPTION=OK
 [frmKey_btnCancel]
 CAPTION=Abbrechen
-[frmKey_gbRotate]
-CAPTION=Bits rotieren
-[frmKey_gbXORkey]
-CAPTION=XOR-Schl√ºssel
-[frmKey_lblTimes]
-CAPTION={Times}
-[frmKey_lblTime]
-CAPTION={Moment}
-[frmKey_chkChangeExt]
-CAPTION=Change file extension (smp <-> mp3)
-[frmKey_rgRotate_disabled]
-CAPTION=Deaktiviert
-[frmKey_rgRotate_right]
-CAPTION=Rechts
-[frmKey_rgRotate_left]
-CAPTION=Links
-[frmKey_cboTime_beforeXOR]
-CAPTION=Vor XOR
-[frmKey_cboTime_afterXOR]
-CAPTION=Nach XOR
 [frmKey_SaveToFile]
-CAPTION=Schl√ºssel speichern
+CAPTION=Schl¸ssel speichern
 [frmKey_LoadFromFile]
-CAPTION=Schl√ºssel laden
+CAPTION=Schl¸ssel laden
+[frmKey_lblOperations]
+CAPTION=Operationen:
+[frmKey_lblSourceExt]
+CAPTION=Quellenerweiterung:
+[frmKey_lblDestExt]
+CAPTION=Zielerweiterung:
+[fraOperation_lblXORkey]
+CAPTION=XOR-Schl¸ssel
+[fraOperation_lblRotateTimes]
+CAPTION=Mal
+[fraOperation_lblRotateDirection]
+CAPTION=Richtung
+[fraOperation_rbRotate_right]
+CAPTION=Rechts
+[fraOperation_rbRotate_left]
+CAPTION=Links
+[fraOperation_XOR]
+CAPTION=XOR
+[fraOperation_Rotate]
+CAPTION=Bits drehen
 [frmMct_Caption]
 CAPTION=TAG-Datei-Generator
 [frmMct_lblTipo]
@@ -78,24 +78,28 @@ CAPTION=Schliessen
 FILES_GENERATED=Dateien erfolgreich erzeugt.
 FILE_NOT_FOUND=Datei nicht gefunden: %s.
 SOURCE_DIR_NOT_FOUND=Quell-Verzeichnis existiert nicht.
-CONVERTION_TYPE_NOT_SELECTED=Konvertierungs-Typ nicht ausgew√§hlt.
-REPLACE_FILES_WARNING=Diese Aktion wird alle %s Dateien √ºberschreiben die im gleichen Verzeichnis wie die Quell-Dateien existieren k√∂nnten. Wollen Sie fortfahren?
+CONVERTION_TYPE_NOT_SELECTED=Konvertierungs-Typ nicht ausgew‰hlt.
+REPLACE_FILES_WARNING=Diese Aktion wird alle %s Dateien ¸berschreiben die im gleichen Verzeichnis wie die Quell-Dateien existieren kˆnnten. Wollen Sie fortfahren?
 FILES_OF_TYPE_NOT_FOUND=Keine %s Dateien zum Konvertieren gefunden.
 CONVERTING_FILES=Verarbeite Dateien ...
 PLEASE_WAIT=Bitte warten ...
 CONVERTION_CANCELLED=Verarbeitung abgebrochen, nicht alle Dateien wurden konvertiert.
 CONVERSION_ENDED=Konvertierung erfolgreich abgeschlossen.
-SELECTED_FILE_DONT_EXISTS=Die ausgew√§hlte Datei existiert nicht.
+SELECTED_FILE_DONT_EXISTS=Die ausgew‰hlte Datei existiert nicht.
 CONVERT=Konvertieren
 CONVERT_TO=Konvertieren nach %s
 CONVERTING_FILE=Verarbeite Datei ...
-OVERWRITE_PROMPT=Datei existiert bereits. √úberschreiben?
+OVERWRITE_PROMPT=Datei existiert bereits. ‹berschreiben?
 COULD_NOT_CREATE_STREAM=Konnte Stream nicht erzeugen (%s)
 COULD_NOT_PLAY_FILE=Konnte Stream nicht abspielen (%s)
 [CAPTION]
 NORMALIZE_BEFORE=MP3 vor Konvertierung normalisieren
 NORMALIZE_AFTER=MP3 normalisieren
-ENCRYPT=Verschl√ºsseln (.mp3 -> .smp)
-DECRYPT=Entschl√ºsseln (.smp -> .mp3)
+ENCRYPT=Verschl¸sseln (.mp3 -> .smp)
+DECRYPT=Entschl¸sseln (.smp -> .mp3)
 NORMALIZING=Normalisiere
 PROCESSING=Verarbeite
+SAVE_AS=Verzeichnis ausw‰hlen
+SAVE_TO=Speichern unter
+FIRST=Erste
+THEN=Dann

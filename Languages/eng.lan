@@ -17,7 +17,7 @@ CAPTION=Normalize
 [mnuConfig]
 CAPTION=Configuration
 [mnuChangeKey]
-CAPTION=Change encryption key
+CAPTION=Change encryption algorithm
 [mnuChangeKey_other]
 CAPTION=Other...
 [mnuChangelanguage]
@@ -25,35 +25,35 @@ CAPTION=Change language
 [mniGenerateMCT]
 CAPTION=TAG file generator
 [frmKey]
-CAPTION=Change key
+CAPTION=Change encryption algorithm
 [frmKey_btnOK]
 CAPTION=OK
 [frmKey_btnCancel]
 CAPTION=Cancel
-[frmKey_gbRotate]
-CAPTION=Rotate bits
-[frmKey_gbXORkey]
-CAPTION=XOR Key
-[frmKey_lblTimes]
-CAPTION=Times
-[frmKey_lblTime]
-CAPTION=Moment
-[frmKey_chkChangeExt]
-CAPTION=Change file extension (smp <-> mp3)
-[frmKey_rgRotate_disabled]
-CAPTION=Disabled
-[frmKey_rgRotate_right]
-CAPTION=Right
-[frmKey_rgRotate_left]
-CAPTION=Left
-[frmKey_cboTime_beforeXOR]
-CAPTION=Before XOR
-[frmKey_cboTime_afterXOR]
-CAPTION=After XOR
 [frmKey_SaveToFile]
-CAPTION=Save key as
+CAPTION=Save encryption algorithm as
 [frmKey_LoadFromFile]
-CAPTION=Load key
+CAPTION=Load encryption algorithm
+[frmKey_lblOperations]
+CAPTION=Operations:
+[frmKey_lblSourceExt]
+CAPTION=Source ext.:
+[frmKey_lblDestExt]
+CAPTION=Dest. ext.:
+[fraOperation_lblXORkey]
+CAPTION=XOR key
+[fraOperation_lblRotateTimes]
+CAPTION=Times
+[fraOperation_lblRotateDirection]
+CAPTION=Direction
+[fraOperation_rbRotate_right]
+CAPTION=Right
+[fraOperation_rbRotate_left]
+CAPTION=Left
+[fraOperation_XOR]
+CAPTION=XOR
+[fraOperation_Rotate]
+CAPTION=Bit rotation
 [frmMct_Caption]
 CAPTION=TAG files generator
 [frmMct_lblTipo]
@@ -95,9 +95,11 @@ COULD_NOT_PLAY_FILE=Could not play stream (%s)
 [CAPTION]
 NORMALIZE_BEFORE=Normalize mp3 before conversion.
 NORMALIZE_AFTER=Normalize resulting mp3.
-ENCRYPT=Encrypt (.mp3 -> .smp)
-DECRYPT=Decrypt (.smp -> .mp3)
+ENCRYPT=Encrypt
+DECRYPT=Decrypt
 NORMALIZING=Normalizing
 PROCESSING=Processing
 SAVE_AS=Select directory
 SAVE_TO=Save to
+FIRST=First
+THEN=Then

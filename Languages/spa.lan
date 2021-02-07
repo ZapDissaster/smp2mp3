@@ -17,7 +17,7 @@ CAPTION=Normalizar
 [mnuConfig]
 CAPTION=Configuración
 [mnuChangeKey]
-CAPTION=Cambiar clave de encriptación
+CAPTION=Cambiar algoritmo de encriptación
 [mnuChangeKey_other]
 CAPTION=Otra...
 [mnuChangelanguage]
@@ -25,35 +25,35 @@ CAPTION=Cambiar idioma
 [mniGenerateMCT]
 CAPTION=Generador archivos TAG
 [frmKey]
-CAPTION=Cambiar clave
+CAPTION=Cambiar algoritmo de encriptación
 [frmKey_btnOK]
 CAPTION=Aceptar
 [frmKey_btnCancel]
 CAPTION=Cancelar
-[frmKey_gbRotate]
-CAPTION=Rotar bits
-[frmKey_gbXORkey]
-CAPTION=Clave XOR
-[frmKey_lblTimes]
-CAPTION=Veces
-[frmKey_lblTime]
-CAPTION=Momento
-[frmKey_chkChangeExt]
-CAPTION=Cambiar extensión de archivo (smp <-> mp3)
-[frmKey_rgRotate_disabled]
-CAPTION=Deshabilitado
-[frmKey_rgRotate_right]
-CAPTION=Derecha
-[frmKey_rgRotate_left]
-CAPTION=Izquierda
-[frmKey_cboTime_beforeXOR]
-CAPTION=Antes de XOR
-[frmKey_cboTime_afterXOR]
-CAPTION=Después de XOR
 [frmKey_SaveToFile]
-CAPTION=Guardar Clave como
+CAPTION=Guardar algoritmo de encriptación como
 [frmKey_LoadFromFile]
-CAPTION=Cargar Clave
+CAPTION=Cargar algoritmo de encriptación
+[frmKey_lblOperations]
+CAPTION=Operaciones:
+[frmKey_lblSourceExt]
+CAPTION=Ext. origen:
+[frmKey_lblDestExt]
+CAPTION=Ext. destino:
+[fraOperation_lblXORkey]
+CAPTION=Llave XOR
+[fraOperation_lblRotateTimes]
+CAPTION=Veces
+[fraOperation_lblRotateDirection]
+CAPTION=Dirección
+[fraOperation_rbRotate_right]
+CAPTION=Derecha
+[fraOperation_rbRotate_left]
+CAPTION=Izquierda
+[fraOperation_XOR]
+CAPTION=XOR
+[fraOperation_Rotate]
+CAPTION=Rotar bits
 [frmMct_Caption]
 CAPTION=Generador de archivos TAG
 [frmMct_lblTipo]
@@ -95,9 +95,11 @@ COULD_NOT_PLAY_FILE=No se le pudo dar play (%s)
 [CAPTION]
 NORMALIZE_BEFORE=Normalizar mp3 antes de convertirlo
 NORMALIZE_AFTER=Normalizar mp3 resultante.
-ENCRYPT=Encriptar (.mp3 -> .smp)
-DECRYPT=Desencriptar (.smp -> .mp3)
+ENCRYPT=Encriptar
+DECRYPT=Desencriptar
 NORMALIZING=Normalizando
 PROCESSING=Procesando
 SAVE_AS=Seleccionar directorio
 SAVE_TO=Guardar en
+FIRST=Primero
+THEN=Después
