@@ -69,7 +69,6 @@ type
     FmniChangeKeyOther : TMenuItem;
     procedure InitKey;
     procedure ConvertSingleFile(ASourceFileName, ADestFileName : string; AEncrypt : boolean);
-    procedure ChangeBatchConvertCaption;
     function ConvertExt(AFileName : string) : string;
     procedure LoadLanguage(AFilename : string); overload;
     procedure LoadLanguage(ALanguage : TLanguage); overload;
@@ -85,6 +84,9 @@ type
     procedure SetProgress( AnIndex, AProgress : integer);
     function ProgressOf(AnIndex : integer) : integer;
     procedure SetVolume(const Value: integer);
+    function GetAlgorithm: TAlgorithm;
+    procedure SetAlgorithm(const Value: TAlgorithm);
+    property Algorithm : TAlgorithm read GetAlgorithm write SetAlgorithm;
   public
     { Public declarations }
     procedure DoOnStopPlay;
@@ -118,7 +120,7 @@ uses
 {$R *.dfm}
 
 procedure EndSyncProc(hSync: Thandle; hChan: DWORD; data: DWORD; MyObject: Pointer); stdcall;
-//Cuando termina la reproducción en el TRdxdxPlayer llama a su procedimiento stop
+//Call audio stop actions when audio reaches end of file
 var
   lForm : TfrmSmp2MP3;
 begin
@@ -222,70 +224,47 @@ var
   lXORKeyLength : integer;
   lXORKeyIndex : integer;
   i : integer;
-  lRotateDirection : TRotateDirection;
+  lOperations : TAlgorithmOperationArray;
 begin
   result := AByte;
   if AEncrypt then
+    lOperations := GlobalAlgorithm.Operations
+  else  //if is decrypting, operations must be inverted
+    lOperations := InvertOperations(GlobalAlgorithm.Operations);
+
+  for i := 0 to Length(lOperations) - 1 do
   begin
-    for i := 0 to Length(GlobalAlgorithm.Operations) - 1 do
-    begin
-      if GlobalAlgorithm.Operations[i].OperationType = otXOR then
-      begin //XOR
-        lXORKeyLength := length(GlobalAlgorithm.Operations[i].XorKey);
-        if lXORKeyLength > 0 then
-        begin
-          lXORKeyIndex := aByteIndex mod lXORKeyLength;
-          result := result xor GlobalAlgorithm.Operations[i].XorKey[lXORKeyIndex]; 
-        end;
-      end
-      else if GlobalAlgorithm.Operations[i].OperationType = otRotate then
-      begin //Rotate Byte
-        result := lRotateByte(result,GlobalAlgorithm.Operations[i].RotateDirection,GlobalAlgorithm.Operations[i].RotateCount);
+    if lOperations[i].OperationType = otXOR then
+    begin //XOR
+      lXORKeyLength := length(lOperations[i].XorKey);
+      if lXORKeyLength > 0 then //if length of XOR key = 0, do nothing
+      begin
+        lXORKeyIndex := aByteIndex mod lXORKeyLength;
+        result := result xor lOperations[i].XorKey[lXORKeyIndex];
       end;
-    end;
-  end
-  else //if decripting, must run operations in inverse order and rotation direction is switched
-  begin
-    for i := Length(GlobalAlgorithm.Operations) - 1 downto 0 do
-    begin
-      if GlobalAlgorithm.Operations[i].OperationType = otXOR then
-      begin //XOR
-        lXORKeyLength := length(GlobalAlgorithm.Operations[i].XorKey);
-        if lXORKeyLength > 0 then
-        begin
-          lXORKeyIndex := aByteIndex mod lXORKeyLength;
-          result := result xor GlobalAlgorithm.Operations[i].XorKey[lXORKeyIndex];
-        end;
-      end
-      else if GlobalAlgorithm.Operations[i].OperationType = otRotate then
-      begin  //Rotate Byte (switch direction)
-        if GlobalAlgorithm.Operations[i].RotateDirection = rdRight then
-          lRotateDirection := rdLeft
-        else if GlobalAlgorithm.Operations[i].RotateDirection = rdLeft then
-          lRotateDirection := rdRight
-        else
-          lRotateDirection := rdNone;
-        result := lRotateByte(result,lRotateDirection,GlobalAlgorithm.Operations[i].RotateCount);
-      end;
+    end
+    else if lOperations[i].OperationType = otRotate then
+    begin //Rotate Byte
+      result := lRotateByte(result,lOperations[i].RotateDirection,lOperations[i].RotateCount);
     end;
   end;
 end;
 
 
 procedure BassFileCloseProc(user: Pointer); stdcall;
-//Bass callback to close file
+//Bass callback to close encrypted file
 begin
   GSourceFile.Free;
 end;
 
 function BassFileLenProc(user: Pointer): QWORD; stdcall;
-//Bass callback to get file size
+//Bass callback to get encrypted file size
 begin
   result := GSourceFile.Size;
 end;
 
 function BassFileReadProc(buffer: Pointer; length: DWORD; user: Pointer): DWORD; stdcall;
-//Bass callback to read file
+//Bass callback to read encrypted file
 var
   lBuffer : array [0 .. 1023] of byte;
   lDecodedBuffer : array [0 .. 1023] of Byte;
@@ -304,7 +283,7 @@ begin
 end;
 
 function BassFileSeekProc(offset: QWORD; user: Pointer): BOOL; stdcall;
-//Bass callback to change position in file
+//Bass callback to change position in encrypted file
 begin
   result := true;
   GSourceFile.Position := offset;
@@ -314,6 +293,7 @@ end;
 
 
 function TfrmSmp2MP3.AddProgress(AMaxValue: integer; ACaption: string): integer;
+//adds a progressbar to the progressbars panel and shows panel if necessary
 const
   TOP_MARGIN = 8;
   BOTTOM_MARGIN = 16;
@@ -412,7 +392,7 @@ begin
     if RightStr(lDestDir,1) <> '\' then
       lDestDir := lDestDir + '\';
 
-    if (UpperCase(GlobalAlgorithm.SourceExt) = UpperCase(GlobalAlgorithm.DestExt)) and (uppercase(lSourceDir) = UpperCase(lDestDir)) then
+    if (UpperCase(Algorithm.SourceExt) = UpperCase(Algorithm.DestExt)) and (uppercase(lSourceDir) = UpperCase(lDestDir)) then
     begin
       MessageDlg('Source and destination directories are the same.', mtError, [mbOK], 0);
       exit;
@@ -420,9 +400,9 @@ begin
 
 
     if rbBatchMp32Smp.Checked then
-      lSourceExt := GlobalAlgorithm.SourceExt
+      lSourceExt := Algorithm.SourceExt
     else
-      lSourceExt := GlobalAlgorithm.DestExt;
+      lSourceExt := Algorithm.DestExt;
 
 
     if (MessageDlg(Format(Language.MESSAGES_REPLACE_FILES_WARNING,[ConvertExt(lSourceExt)]), mtWarning, [mbYes, mbNo], 0) in [mrNo, mrNone]) then
@@ -464,6 +444,7 @@ procedure TfrmSmp2MP3.btnConvertSingleClick(Sender: TObject);
 var
   lDestExt: string;
   lSourceFileName, lDestFileName: string;
+  lEncrypt : boolean;
 begin
   Enabled := false;
   try
@@ -488,7 +469,11 @@ begin
     //Call conversion procedure
     btnPlay.Enabled := false;
     try
-      ConvertSingleFile(lSourceFileName,lDestFileName, rbSingleMp32Smp.Checked);
+      if uppercase(Algorithm.SourceExt) <> uppercase(Algorithm.DestExt) then
+        lEncrypt := uppercase(ExtractFileExt(lSourceFileName)) = uppercase(Algorithm.SourceExt)
+      else
+        lEncrypt := rbSingleMp32Smp.Checked;
+      ConvertSingleFile(lSourceFileName,lDestFileName, lEncrypt);
     finally
       btnPlay.Enabled := true;
     end;
@@ -497,61 +482,48 @@ begin
   end;
 end;
 
-procedure TfrmSmp2MP3.ChangeBatchConvertCaption;
-//change button caption according to convertion type selected
-var
-  lDestExt : string;
-begin
-  if rbBatchSmp2Mp3.Checked then
-    lDestExt := '.mp3'
-  else if rbBatchMp32Smp.Checked then
-    lDestExt := '.smp'
-  else
-    lDestExt := '';
-  if lDestExt <> '' then
-    btnBatchConvert.Caption := Format(Language.MESSAGES_CONVERT_TO,[lDestExt])
-  else
-    btnBatchConvert.Caption := Language.MESSAGES_CONVERT;
-
-  if lDestExt = '.mp3' then
-    chkNormalizar.Caption := Language.CAPTION_NORMALIZE_AFTER
-  else
-    chkNormalizar.Caption := Language.CAPTION_NORMALIZE_BEFORE;
-end;
-
 procedure TfrmSmp2MP3.ChangeCaptions;
+//change component captions according to current languge and values.
 var
   lDestExt : string;
 begin
   caption := Language.frmSmp2Mp3_caption + ' v' + VersionString;
-//  if GlobalAlgorithm.Name <> '' then
-//    caption := caption + ' (' + ExtractFileName(GlobalAlgorithm.Name) + ')';
-  if GlobalAlgorithm.Name <> '' then
+
+  mnuConfig.Caption := Language.mnuConfig_caption;
+  mnuChangeKey.Caption := Language.mnuChangeKey_caption;
+  mnuChangelanguage.Caption := Language.mnuChangelanguage_caption;
+  mniGenerateMCT.Caption := Language.mniGenerateMCT_caption;
+  if assigned(FmniChangeKeyOther) then
+    FmniChangeKeyOther.Caption :=Language.mnuChangeKey_other_caption;
+  mniLanguageOther.Caption :=Language.mnuChangeKey_other_caption;
+
+  if Algorithm.Name <> '' then
   begin
-    gbSingleFile.Caption := Language.gbSingleFile_caption + ' (' + ExtractFileName(GlobalAlgorithm.Name) + ')';
-    gbConvertBatch.Caption := Language.gbConvertBatch_caption + ' (' + ExtractFileName(GlobalAlgorithm.Name) + ')';
+    gbSingleFile.Caption := Language.gbSingleFile_caption + ' (' + ExtractFileName(Algorithm.Name) + ')';
+    gbConvertBatch.Caption := Language.gbConvertBatch_caption + ' (' + ExtractFileName(Algorithm.Name) + ')';
   end
   else
   begin
     gbSingleFile.Caption := Language.gbSingleFile_caption;
     gbConvertBatch.Caption := Language.gbConvertBatch_caption;
   end;
-  if assigned(FmniChangeKeyOther) then
-    FmniChangeKeyOther.Caption :=Language.mnuChangeKey_other_caption;
-  mniLanguageOther.Caption :=Language.mnuChangeKey_other_caption;
-  rbSingleSmp2Mp3.Visible := AlgorithmHasRotation(GlobalAlgorithm);
-  rbSingleMp32Smp.Visible := AlgorithmHasRotation(GlobalAlgorithm);
-  rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT + '(' + GlobalAlgorithm.SourceExt + ' -> ' + GlobalAlgorithm.DestExt + ')';
-  rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT + '(' + GlobalAlgorithm.DestExt + ' -> ' + GlobalAlgorithm.SourceExt + ')';
-  rbSingleMp32Smp.Caption := Language.CAPTION_ENCRYPT + '(' + GlobalAlgorithm.SourceExt + ' -> ' + GlobalAlgorithm.DestExt + ')';
-  rbSingleSmp2Mp3.Caption := Language.CAPTION_DECRYPT + '(' + GlobalAlgorithm.DestExt + ' -> ' + GlobalAlgorithm.SourceExt + ')';
-  lDestExt := ConvertExt(edFileName.Text);
-
+  lblSOrigen.Caption := Language.lblSOrigen_caption;
   if lDestExt <> '' then
     btnConvertSingle.Caption := Format(Language.MESSAGES_CONVERT_TO,[lDestExt])
   else
     btnConvertSingle.Caption := Language.MESSAGES_CONVERT;
-  chkNormalizar.Enabled := uppercase(GlobalAlgorithm.SourceExt) <> uppercase(GlobalAlgorithm.DestExt);
+  rbSingleSmp2Mp3.Visible := AlgorithmHasRotation(Algorithm);
+  rbSingleMp32Smp.Visible := AlgorithmHasRotation(Algorithm);
+  lblBOrigen.Caption := Language.lblBOrigen_caption;
+  rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT + '(' + Algorithm.SourceExt + ' -> ' + Algorithm.DestExt + ')';
+  rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT + '(' + Algorithm.DestExt + ' -> ' + Algorithm.SourceExt + ')';
+  rbSingleMp32Smp.Caption := Language.CAPTION_ENCRYPT + '(' + Algorithm.SourceExt + ' -> ' + Algorithm.DestExt + ')';
+  rbSingleSmp2Mp3.Caption := Language.CAPTION_DECRYPT + '(' + Algorithm.DestExt + ' -> ' + Algorithm.SourceExt + ')';
+  btnBatchConvert.Caption := Language.btnBatchConvert_caption;
+
+  lDestExt := ConvertExt(edFileName.Text);
+
+  chkNormalizar.Enabled := uppercase(Algorithm.SourceExt) <> uppercase(Algorithm.DestExt);
   if chkNormalizar.Enabled then
   begin
     if lDestExt = '.mp3' then
@@ -598,12 +570,12 @@ var
 begin
   lSourceExt := UpperCase(ExtractFileExt(AFileName));
 
-  if uppercase(GlobalAlgorithm.SourceExt) <> uppercase(GlobalAlgorithm.DestExt) then
+  if uppercase(Algorithm.SourceExt) <> uppercase(Algorithm.DestExt) then
   begin
-    if lSourceExt = uppercase(GlobalAlgorithm.SourceExt) then
-      Result := GlobalAlgorithm.DestExt
-    else if lSourceExt = uppercase(GlobalAlgorithm.DestExt) then
-      Result := GlobalAlgorithm.SourceExt
+    if lSourceExt = uppercase(Algorithm.SourceExt) then
+      Result := Algorithm.DestExt
+    else if lSourceExt = uppercase(Algorithm.DestExt) then
+      Result := Algorithm.SourceExt
     else
       Result := '';
   end
@@ -685,10 +657,10 @@ begin
     pnlprogress.Visible := false;
     pnlProgress.ClientHeight := 10;
   end;
-//  pnlProgress.ClientHeight := TOP_MARGIN + ( ROW_HEIGHT * FProgressBars.Count ) + BOTTOM_MARGIN;
 end;
 
 procedure TfrmSmp2MP3.DoOnStopPlay;
+//Actions to do when reproduction stops
 begin
   BASS_StreamFree(Player);
   btnConvertSingle.Enabled := true;
@@ -759,6 +731,11 @@ begin
   FProgressLabels.Free;
 end;
 
+function TfrmSmp2MP3.GetAlgorithm: TAlgorithm;
+begin
+  result := GlobalAlgorithm;
+end;
+
 procedure TfrmSmp2MP3.IncProgress(AnIndex, AnAmount: integer);
 var
   lProgress : TGauge;
@@ -782,11 +759,8 @@ procedure TfrmSmp2MP3.InitKey;
     Result.Name := 'Audiocuentos';
     Result.SourceExt := '.mp3';
     Result.DestExt := '.smp';
-    SetLength(result.Operations,1);
-    Result.Operations[0].OperationType := otXOR;
-    Result.Operations[0].RotateDirection := rdNone;
-    Result.Operations[0].RotateCount := 0;
-    Result.Operations[0].XorKey := CommaTextToXorKey('0x51,0x23,0x98,0x56');
+    SetLength(result.Operations,0);
+    AddOperationToAlgorithm(result, otXOR, CommaTextToXorKey('0x51,0x23,0x98,0x56'), rdNone, 0);
   end;
   //**************************************************************************//
 var
@@ -802,7 +776,7 @@ begin
   end;
 
   if lSectionExists then
-    GlobalAlgorithm := LoadKeyFromFile(lAlgorithmFilename)
+    Algorithm := LoadKeyFromFile(lAlgorithmFilename)
   else
   begin
     OpenDialog.Title := Language.mnuChangeKey_caption;
@@ -812,13 +786,13 @@ begin
     if OpenDialog.Execute(Handle) then
     begin
       if FileExists(OpenDialog.FileName) then
-        GlobalAlgorithm := LoadKeyFromFile(OpenDialog.FileName)
+        Algorithm := LoadKeyFromFile(OpenDialog.FileName)
       else
-        GlobalAlgorithm := lDefaultAlgorithm;
+        Algorithm := lDefaultAlgorithm;
     end
     else
-      GlobalAlgorithm := lDefaultAlgorithm;
-    SaveKeyToFile(lAlgorithmFilename,GlobalAlgorithm);
+      Algorithm := lDefaultAlgorithm;
+    SaveKeyToFile(lAlgorithmFilename,Algorithm);
   end;
 
   PlayerKeyIndex := 0;
@@ -830,18 +804,6 @@ procedure TfrmSmp2MP3.LoadLanguage(ALanguage: TLanguage);
 begin
   Language := ALanguage;
   ChangeCaptions;
-  gbSingleFile.Caption := Language.gbSingleFile_caption;
-  btnConvertSingle.Caption := Language.btnConvertSingle_caption;
-  lblSOrigen.Caption := Language.lblSOrigen_caption;
-  gbConvertBatch.Caption := Language.gbConvertBatch_caption;
-  lblBOrigen.Caption := Language.lblBOrigen_caption;
-  btnBatchConvert.Caption := Language.btnBatchConvert_caption;
-  chkNormalizar.Caption := Language.chkNormalizar_caption;
-  mnuConfig.Caption := Language.mnuConfig_caption;
-  mnuChangeKey.Caption := Language.mnuChangeKey_caption;
-  mnuChangelanguage.Caption := Language.mnuChangelanguage_caption;
-  mniGenerateMCT.Caption := Language.mniGenerateMCT_caption;
-  ChangeCaptions;
 end;
 
 procedure TfrmSmp2MP3.LoadLanguage(AFilename: string);
@@ -852,8 +814,8 @@ end;
 
 procedure TfrmSmp2MP3.mniChangeKeyShortcut(Sender: TObject);
 begin
-  GlobalAlgorithm := FindAndLoadKey((TMenuItem(Sender).Caption));
-  SaveKeyToFile(IniFileName,GlobalAlgorithm);
+  Algorithm := FindAndLoadKey((TMenuItem(Sender).Caption));
+  SaveKeyToFile(IniFileName,Algorithm);
   ChangeCaptions;
 end;
 
@@ -901,11 +863,11 @@ begin
   with TfrmKey.Create(nil) do
   try
     Language := self.Language;
-    Algorithm := GlobalAlgorithm;
+    Algorithm := self.Algorithm;
     if ShowModal = mrOk then
     begin
-      GlobalAlgorithm := Algorithm;
-      SaveKeyToFile(IniFileName,GlobalAlgorithm);
+      self.Algorithm := Algorithm;
+      SaveKeyToFile(IniFileName,Algorithm);
       ChangeCaptions;
     end;
   finally
@@ -1064,10 +1026,13 @@ var
   lprocs : BASS_FILEPROCS;
   lUser : integer;
 begin
+  lUser := 0;
   PlayerKeyIndex := 0;
   Player := 0;
-  //If file is encrypted use Callbacks to decrypt
-  if UpperCase(ExtractFileExt(edFileName.Text)) = '.SMP' then
+  //If file is not encrypted play normally, else use callback
+  if UpperCase(ExtractFileExt(edFileName.Text)) = '.MP3' then
+    Player := BASS_StreamCreateFile(False,PChar(edFileName.Text),0,0,0)
+  else
   begin
     GSourceFile := TFileStream.Create(edFileName.Text, fmOpenRead);
     lprocs.close := BassFileCloseProc;
@@ -1075,9 +1040,7 @@ begin
     lprocs.read := BassFileReadProc;
     lprocs.seek := BassFileSeekProc;
     Player := BASS_StreamCreateFileUser(STREAMFILE_BUFFER,0,lprocs,pointer(lUser));
-  end
-  else //Play directly
-    Player := BASS_StreamCreateFile(False,PChar(edFileName.Text),0,0,0);
+  end;
   btnConvertSingle.Enabled := false;
   if Player = 0 then
     ShowMessage(format(Language.MESSAGES_COULD_NOT_CREATE_STREAM,[BassErrorToString(BASS_ErrorGetCode)]))
@@ -1099,17 +1062,17 @@ end;
 
 procedure TfrmSmp2MP3.rbBatchMp32SmpClick(Sender: TObject);
 begin
-  ChangeBatchConvertCaption;
+  ChangeCaptions;
 end;
 
 procedure TfrmSmp2MP3.rbBatchSmp2Mp3Click(Sender: TObject);
 begin
-  ChangeBatchConvertCaption;
+  ChangeCaptions;
 end;
 
 procedure TfrmSmp2MP3.sbSelectFileClick(Sender: TObject);
 begin
-  OpenDialog.Filter := '*' + GlobalAlgorithm.SourceExt + ';*' + GlobalAlgorithm.DestExt + '|*' + GlobalAlgorithm.SourceExt + ';*' + GlobalAlgorithm.DestExt + '';
+  OpenDialog.Filter := '*' + Algorithm.SourceExt + ';*' + Algorithm.DestExt + '|*' + Algorithm.SourceExt + ';*' + Algorithm.DestExt + '';
   OpenDialog.InitialDir := '';
   OpenDialog.FileName := '';
   if OpenDialog.Execute(Handle) then
@@ -1117,6 +1080,12 @@ begin
     if FileExists(OpenDialog.FileName) then
       edFileName.Text := OpenDialog.FileName;
   end;
+end;
+
+procedure TfrmSmp2MP3.SetAlgorithm(const Value: TAlgorithm);
+begin
+  GlobalAlgorithm := Value;
+  btnPlay.Enabled := uppercase(Value.SourceExt) = '.MP3';  
 end;
 
 procedure TfrmSmp2MP3.SetProgress(AnIndex, AProgress: integer);

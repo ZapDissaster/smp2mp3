@@ -372,7 +372,6 @@ object frmSmp2MP3: TfrmSmp2MP3
       Caption = 'Configuraci'#243'n'
       object mnuChangeKey: TMenuItem
         Caption = 'Cambiar clave de encriptaci'#243'n'
-        OnClick = mnuChangeKeyClick
       end
       object mnuChangelanguage: TMenuItem
         Caption = 'Cambiar idioma'

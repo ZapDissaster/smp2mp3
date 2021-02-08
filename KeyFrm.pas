@@ -21,6 +21,9 @@ type
     lblDestExt: TLabel;
     edDestExt: TEdit;
     sbAddOperation: TSpeedButton;
+    sbClearOperations: TSpeedButton;
+    SpeedButton1: TSpeedButton;
+    btnConvertAlgorithms: TButton;
     procedure btnOKClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure sbLoadKeyClick(Sender: TObject);
@@ -32,6 +35,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure mniLoadKeyClick(Sender: TObject);
     procedure sbAddOperationClick(Sender: TObject);
+    procedure sbClearOperationsClick(Sender: TObject);
+    procedure btnConvertAlgorithmsClick(Sender: TObject);
   private
     FSelectedKeyName: string;
     GLoadingKey : boolean;
@@ -111,6 +116,31 @@ procedure TfrmKey.btnOKClick(Sender: TObject);
 begin
   close;
   ModalResult := mrOK;
+end;
+
+procedure TfrmKey.btnConvertAlgorithmsClick(Sender: TObject);
+var
+  lFilename1, lFilename2 : string;
+  lAlgorithm1, lAlgorithm2 : TAlgorithm;
+  lOperations : TAlgorithmOperationArray;
+  i : integer;
+begin
+  if PromptForFileName(lFilename1,'*.key|*.key','.key',Language.frmKey_Convert_Source_caption,KeysPath) then
+  begin
+    lAlgorithm1 := LoadKeyFromFile(lFilename1);
+    if PromptForFileName(lFilename2,'*.key|*.key','.key',Language.frmKey_Convert_Destination_caption,KeysPath) then
+    begin
+      lAlgorithm2 := LoadKeyFromFile(lFilename2);
+      edSourceExt.Text := lAlgorithm1.DestExt;
+      edDestExt.Text := lAlgorithm2.DestExt;
+      lOperations := InvertOperations(lAlgorithm1.Operations);
+      for i := 0 to Length(lAlgorithm2.Operations) - 1 do
+        AddOperationToOperations(lOperations,lAlgorithm2.Operations[i]);
+      Operations := SimplifyOperations(lOperations);
+      SelectedKeyName := StripFileName(lFilename1) + ' -> ' + StripFileName(lFilename2);
+    end;
+  end;
+
 end;
 
 procedure TfrmKey.cboTimeChange(Sender: TObject);
@@ -265,6 +295,7 @@ begin
   lbloperations.Caption := FLanguage.frmKey_lblOperations_caption;
   lblSourceExt.Caption := FLanguage.frmKey_lblSourceExt_caption;
   lblDestExt.Caption := FLanguage.frmKey_lblDestExt_caption;
+  btnConvertAlgorithms.Caption := FLanguage.frmKey_btnConvertAlgorithms_caption;
 end;
 
 procedure TfrmKey.SetOperations(const Value: TAlgorithmOperationArray);
@@ -302,6 +333,17 @@ end;
 
 procedure TfrmKey.sbAddOperationClick(Sender: TObject);
 begin
+  AppendFrame.Init;
+  ArrangeFrames;
+end;
+
+procedure TfrmKey.sbClearOperationsClick(Sender: TObject);
+var
+  i : integer;
+begin
+  for i := length(FFrames) - 1 downto 0 do
+    FFrames[i].Free;
+  SetLength(FFrames, 0);
   AppendFrame.Init;
   ArrangeFrames;
 end;

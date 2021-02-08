@@ -18,7 +18,7 @@ type
     OperationType : TOperationType;
     XorKey : TByteArray;
     RotateDirection : TRotateDirection;
-    RotateCount : byte;
+    RotateCount : Integer;
   end;
 
   TAlgorithmOperationArray = array of TAlgorithmOperation;
@@ -52,6 +52,9 @@ type
     frmKey_lblOperations_caption : string;
     frmKey_lblSourceExt_caption : string;
     frmKey_lblDestExt_caption : string;
+    frmKey_btnConvertAlgorithms_caption : string;
+    frmKey_Convert_Source_caption : string;
+    frmKey_Convert_Destination_caption : string;
     fraOperation_lblXORkey_caption : string;
     fraOperation_lblRotateTimes_caption : string;
     fraOperation_lblRotateDirection_caption : string;
@@ -106,6 +109,7 @@ function AlgorithmHasRotation(AnAlgorithm : TAlgorithm) : boolean;
 procedure AddOperationToAlgorithm(var vAlgorithm : TAlgorithm; AnOperationType : TOperationType;
     aXorKey : TByteArray; aRotateDirection : TRotateDirection; aRotateCount : integer); overload;
 procedure AddOperationToAlgorithm(var vAlgorithm : TAlgorithm; AnOperation : TAlgorithmOperation); overload;
+procedure AddOperationToOperations(var vOperations : TAlgorithmOperationArray; AnOperation : TAlgorithmOperation);
 function LoadKeyFromFile(AFileName : string) : TAlgorithm;
 procedure SaveKeyToFile(AFileName : string; AnAlgorithm : TAlgorithm);
 function XorKeyToCommaText (AXORKey : TByteArray) : string;
@@ -121,11 +125,108 @@ function StripFileName(AFileName : string) : string;
 function VersionString : string;
 function LanguagesPath : string;
 function KeysPath : string;
+function InvertOperations(AnOperationsArray : TAlgorithmOperationArray) : TAlgorithmOperationArray;
+function ByteArrayXORByteArray(AByteArray1, AByteArray2 : TByteArray) : TByteArray;
+function SimplifyOperations(aOperations : TAlgorithmOperationArray) : TAlgorithmOperationArray;
+function InvertRotation(ARotateDirection : TRotateDirection) : TRotateDirection;
 
 implementation
 
 uses
-  SysUtils, Forms, IniFiles, Contnrs, StrUtils, Windows, Dialogs;
+  SysUtils, Forms, IniFiles, Contnrs, StrUtils, Windows, Dialogs, Math;
+
+function InvertRotation(ARotateDirection : TRotateDirection) : TRotateDirection;
+begin
+  if ARotateDirection = rdRight then
+    result := rdLeft
+  else if ARotateDirection = rdLeft then
+    result := rdRight
+  else
+    result := rdNone;
+end;
+
+function SimplifyOperations(aOperations : TAlgorithmOperationArray) : TAlgorithmOperationArray;
+var
+  i: Integer;
+  lCurrentOperation : TAlgorithmOperation;
+begin
+  SetLength(result,0);
+  if length(aOperations) > 0 then
+  begin
+    lCurrentOperation := aOperations[0];
+    for i := 1 to (Length(aOperations)) - 1 do
+    begin
+      if lCurrentOperation.OperationType <> aOperations[i].OperationType then
+      begin
+        AddOperationToOperations(Result,lCurrentOperation);
+        lCurrentOperation := aOperations[i];
+      end
+      else
+      begin
+        if lCurrentOperation.OperationType = otXOR then
+          lCurrentOperation.XorKey := ByteArrayXORByteArray(lCurrentOperation.XorKey,aOperations[i].XorKey)
+        else if lCurrentOperation.OperationType = otRotate then
+        begin //rotate in the same direction
+          if lCurrentOperation.RotateDirection = aOperations[i].RotateDirection then
+            lCurrentOperation.RotateCount := lCurrentOperation.RotateCount + aOperations[i].RotateCount
+          else //rotate in different directions
+          begin
+            lCurrentOperation.RotateCount := lCurrentOperation.RotateCount - aOperations[i].RotateCount;
+            if lCurrentOperation.RotateCount < 0 then //if rotate count is less than 0, it means it's rotating in the opposiing direction
+            begin
+              lCurrentOperation.RotateCount := -1 * lCurrentOperation.RotateCount;
+              lCurrentOperation.RotateDirection := InvertRotation(lCurrentOperation.RotateDirection);
+            end;
+          end;
+        end;
+      end;
+    end;
+    AddOperationToOperations(Result,lCurrentOperation);
+  end;
+end;
+
+function ByteArrayXORByteArray(AByteArray1, AByteArray2 : TByteArray) : TByteArray;
+var
+  lLength1, lLength2 : integer;
+  lIndex1, lIndex2 : integer;
+  i: Integer;
+begin
+  lLength1 := length(AByteArray1);
+  lLength2 := length(AByteArray2);
+  if (lLength1 > 0) and (lLength2 > 0) then
+  begin
+    SetLength(result,max(lLength1, lLength2));
+    for i := 0 to max(lLength1, lLength2) - 1 do
+    begin
+      lIndex1 := i mod lLength1;
+      lIndex2 := i mod lLength2;
+      result[i] := AByteArray1[lIndex1] XOR AByteArray2[lIndex2];
+    end;
+  end
+  else if lLength1 > 0 then
+    result := AByteArray1
+  else if lLength2 > 0 then
+    Result := AByteArray2
+  else
+    SetLength(result,0);
+end;
+
+function InvertOperations(AnOperationsArray : TAlgorithmOperationArray) : TAlgorithmOperationArray;
+//invert order of operations and rotation
+var
+  i: Integer;
+  lIndex : integer;
+begin
+  SetLength(result,0);
+  for i := length(AnOperationsArray) - 1 downto 0 do
+  begin
+    lIndex := Length(result);
+    SetLength(result, lIndex + 1);
+    Result[lIndex] := AnOperationsArray[i];
+    if Result[lIndex].OperationType = otRotate then
+      Result[lIndex].RotateDirection := InvertRotation(Result[lIndex].RotateDirection);
+  end;
+end;
 
 function KeysPath: string;
 begin
@@ -289,6 +390,10 @@ begin
     WriteString('frmKey_lblOperations'            ,'CAPTION'                      ,ALanguage.frmKey_lblOperations_caption             );
     WriteString('frmKey_lblSourceExt'             ,'CAPTION'                      ,ALanguage.frmKey_lblSourceExt_caption              );
     WriteString('frmKey_lblDestExt'               ,'CAPTION'                      ,ALanguage.frmKey_lblDestExt_caption                );
+    WriteString('frmKey_btnConvertAlgorithms'     ,'CAPTION'                      ,ALanguage.frmKey_btnConvertAlgorithms_caption      );
+    WriteString('frmKey_Convert_Source'           ,'CAPTION'                      ,ALanguage.frmKey_Convert_Source_caption            );
+    WriteString('frmKey_Convert_Destination'      ,'CAPTION'                      ,ALanguage.frmKey_Convert_Destination_caption       );
+
     WriteString('fraOperation_lblXORkey'          ,'CAPTION'                      ,ALanguage.fraOperation_lblXORkey_caption           );
     WriteString('fraOperation_lblRotateTimes'     ,'CAPTION'                      ,ALanguage.fraOperation_lblRotateTimes_caption      );
     WriteString('fraOperation_lblRotateDirection' ,'CAPTION'                      ,ALanguage.fraOperation_lblRotateDirection_caption  );
@@ -369,6 +474,11 @@ begin
     Result.frmKey_lblOperations_caption            := ReadString('frmKey_lblOperations'            ,'CAPTION'                      ,Result.frmKey_lblOperations_caption             );
     Result.frmKey_lblSourceExt_caption             := ReadString('frmKey_lblSourceExt'             ,'CAPTION'                      ,Result.frmKey_lblSourceExt_caption              );
     Result.frmKey_lblDestExt_caption               := ReadString('frmKey_lblDestExt'               ,'CAPTION'                      ,Result.frmKey_lblDestExt_caption                );
+    Result.frmKey_btnConvertAlgorithms_caption     := ReadString('frmKey_btnConvertAlgorithms'     ,'CAPTION'                      ,Result.frmKey_btnConvertAlgorithms_caption      );
+    Result.frmKey_Convert_Source_caption           := ReadString('frmKey_Convert_Source'           ,'CAPTION'                      ,Result.frmKey_Convert_Source_caption            );
+    Result.frmKey_Convert_Destination_caption      := ReadString('frmKey_Convert_Destination'      ,'CAPTION'                      ,Result.frmKey_Convert_Destination_caption       );
+
+
     Result.fraOperation_lblXORkey_caption          := ReadString('fraOperation_lblXORkey'          ,'CAPTION'                      ,Result.fraOperation_lblXORkey_caption           );
     Result.fraOperation_lblRotateTimes_caption     := ReadString('fraOperation_lblRotateTimes'     ,'CAPTION'                      ,Result.fraOperation_lblRotateTimes_caption      );
     Result.fraOperation_lblRotateDirection_caption := ReadString('fraOperation_lblRotateDirection' ,'CAPTION'                      ,Result.fraOperation_lblRotateDirection_caption  );
@@ -446,6 +556,10 @@ begin
   Result.frmKey_lblOperations_caption            := 'Operations:';
   Result.frmKey_lblSourceExt_caption             := 'Source ext.:';
   Result.frmKey_lblDestExt_caption               := 'Dest. ext.:';
+  Result.frmKey_btnConvertAlgorithms_caption     := 'Convert between algorithms';
+  Result.frmKey_Convert_Source_caption           := 'Original format';
+  Result.frmKey_Convert_Destination_caption      := 'Destination format';
+
   Result.fraOperation_lblXORkey_caption          := 'XOR key';
   Result.fraOperation_lblRotateTimes_caption     := 'Times';
   Result.fraOperation_lblRotateDirection_caption := 'Direction';
@@ -557,6 +671,9 @@ begin
   Result.frmKey_lblOperations_caption            := 'Operaciones:';
   Result.frmKey_lblSourceExt_caption             := 'Ext. origen:';
   Result.frmKey_lblDestExt_caption               := 'Ext. destino:';
+  Result.frmKey_btnConvertAlgorithms_caption     := 'Convertir entre algortimos';
+  Result.frmKey_Convert_Source_caption           := 'Formato origen';
+  Result.frmKey_Convert_Destination_caption      := 'Formato destino';
   Result.fraOperation_lblXORkey_caption          := 'Llave XOR';
   Result.fraOperation_lblRotateTimes_caption     := 'Veces';
   Result.fraOperation_lblRotateDirection_caption := 'Dirección';
@@ -660,13 +777,18 @@ begin
   AddOperationToAlgorithm(vAlgorithm,lOperation);
 end;
 
-procedure AddOperationToAlgorithm(var vAlgorithm : TAlgorithm; AnOperation : TAlgorithmOperation); overload;
+procedure AddOperationToOperations(var vOperations : TAlgorithmOperationArray; AnOperation : TAlgorithmOperation);
 var
   lIndex : integer;
 begin
-  lIndex := Length(vAlgorithm.Operations);
-  SetLength(vAlgorithm.Operations,lIndex + 1);
-  vAlgorithm.Operations[lIndex] := AnOperation;
+  lIndex := Length(vOperations);
+  SetLength(vOperations,lIndex + 1);
+  vOperations[lIndex] := AnOperation;
+end;
+
+procedure AddOperationToAlgorithm(var vAlgorithm : TAlgorithm; AnOperation : TAlgorithmOperation); overload;
+begin
+  AddOperationToOperations(vAlgorithm.Operations, AnOperation);
 end;
 
 function LoadKeyFromFile(AFileName : string) : TAlgorithm;
