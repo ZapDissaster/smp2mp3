@@ -40,6 +40,14 @@ CAPTION=Operations:
 CAPTION=Source ext.:
 [frmKey_lblDestExt]
 CAPTION=Dest. ext.:
+[frmKey_btnConvertAlgorithms]
+CAPTION=Convert between algorithms
+[frmKey_chkChangeID3v2]
+CAPTION=Change ID3v2.3 Tag  before encrypt (add filename to title).
+[frmKey_Convert_Source]
+CAPTION=Original format
+[frmKey_Convert_Destination]
+CAPTION=Destination format
 [fraOperation_lblXORkey]
 CAPTION=XOR key
 [fraOperation_lblRotateTimes]
