@@ -46,6 +46,12 @@ object frmSmp2MP3: TfrmSmp2MP3
       Width = 36
       Height = 13
       Caption = 'Origen:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
     end
     object btnPlay: TSpeedButton
       Left = 370
@@ -188,25 +194,25 @@ object frmSmp2MP3: TfrmSmp2MP3
       TabOrder = 3
       OnClick = btnConvertSingleClick
     end
-    object rbSingleSmp2Mp3: TRadioButton
+    object rbSingleDecrypt: TRadioButton
       Left = 66
       Top = 74
       Width = 152
       Height = 17
-      Caption = '.smp -> .mp3'
+      Caption = 'Decrypt'
       TabOrder = 2
-      OnClick = rbBatchSmp2Mp3Click
+      OnClick = rbBatchDecryptClick
     end
-    object rbSingleMp32Smp: TRadioButton
+    object rbSingleEncrypt: TRadioButton
       Left = 66
       Top = 51
       Width = 152
       Height = 17
-      Caption = '.mp3 -> .smp'
+      Caption = 'Encrypt'
       Checked = True
       TabOrder = 1
       TabStop = True
-      OnClick = rbBatchMp32SmpClick
+      OnClick = rbBatchEncryptClick
     end
     object edFileName: TEdit
       Left = 66
@@ -323,25 +329,25 @@ object frmSmp2MP3: TfrmSmp2MP3
       TabOrder = 0
       OnClick = btnBatchConvertClick
     end
-    object rbBatchSmp2Mp3: TRadioButton
+    object rbBatchDecrypt: TRadioButton
       Left = 66
       Top = 75
       Width = 152
       Height = 17
-      Caption = '.smp -> .mp3'
+      Caption = 'Decrypt'
       TabOrder = 2
-      OnClick = rbBatchSmp2Mp3Click
+      OnClick = rbBatchDecryptClick
     end
-    object rbBatchMp32Smp: TRadioButton
+    object rbBatchEncrypt: TRadioButton
       Left = 66
       Top = 52
       Width = 152
       Height = 17
-      Caption = '.mp3 -> .smp'
+      Caption = 'Encrypt'
       Checked = True
       TabOrder = 1
       TabStop = True
-      OnClick = rbBatchMp32SmpClick
+      OnClick = rbBatchEncryptClick
     end
     object edDirName: TEdit
       Left = 66

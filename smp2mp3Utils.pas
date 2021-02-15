@@ -28,9 +28,11 @@ type
     Operations : TAlgorithmOperationArray;
     SourceExt : string;
     DestExt : string;
+    ChangeID3 : boolean;
   end;
 
   TLanguage = record
+    Charset : Integer;
     frmSmp2Mp3_caption : string;
     gbSingleFile_caption : string;
     btnConvertSingle_caption : string;
@@ -53,6 +55,7 @@ type
     frmKey_lblSourceExt_caption : string;
     frmKey_lblDestExt_caption : string;
     frmKey_btnConvertAlgorithms_caption : string;
+    frmKey_chkChangeID3v2_caption : string;
     frmKey_Convert_Source_caption : string;
     frmKey_Convert_Destination_caption : string;
     fraOperation_lblXORkey_caption : string;
@@ -116,7 +119,7 @@ function XorKeyToCommaText (AXORKey : TByteArray) : string;
 function CommaTextToXorKey (ACommaText : string) : TByteArray;
 function InitLanguageSpa: TLanguage;
 function InitLanguageEng: TLanguage;
-function LoadLanguageFromFile(AFilename: string) : TLanguage;
+function LoadLanguageFromFile(AFilename: string) : TLanguage; overload;
 procedure WriteLanguageToFile(AFilename: string; ALanguage: TLanguage);
 procedure AddFilesToMenuItem(ADirectory, AnExtension : string; AMenuItem : TMenuItem; AOnClick : TNotifyEvent);
 function FindAndLoadKey(AKeyname : string) : TAlgorithm;
@@ -391,6 +394,8 @@ begin
     WriteString('frmKey_lblSourceExt'             ,'CAPTION'                      ,ALanguage.frmKey_lblSourceExt_caption              );
     WriteString('frmKey_lblDestExt'               ,'CAPTION'                      ,ALanguage.frmKey_lblDestExt_caption                );
     WriteString('frmKey_btnConvertAlgorithms'     ,'CAPTION'                      ,ALanguage.frmKey_btnConvertAlgorithms_caption      );
+    WriteString('frmKey_chkChangeID3v2'           ,'CAPTION'                      ,ALanguage.frmKey_chkChangeID3v2_caption            );
+
     WriteString('frmKey_Convert_Source'           ,'CAPTION'                      ,ALanguage.frmKey_Convert_Source_caption            );
     WriteString('frmKey_Convert_Destination'      ,'CAPTION'                      ,ALanguage.frmKey_Convert_Destination_caption       );
 
@@ -452,6 +457,7 @@ begin
   result := InitLanguageEng;
   with TIniFile.Create(AFilename) do
   try
+    result.Charset                                 := ReadInteger('GLOBAL'                     ,'CHARSET'                      ,result.Charset                                 );
     result.frmSmp2Mp3_caption                      := ReadString('frmSmp2Mp3'                  ,'CAPTION'                      ,result.frmSmp2Mp3_caption                      );
     result.gbSingleFile_caption                    := ReadString('gbSingleFile'                ,'CAPTION'                      ,result.gbSingleFile_caption                    );
     result.btnConvertSingle_caption                := ReadString('btnConvertSingle'            ,'CAPTION'                      ,result.btnConvertSingle_caption                );
@@ -475,6 +481,7 @@ begin
     Result.frmKey_lblSourceExt_caption             := ReadString('frmKey_lblSourceExt'             ,'CAPTION'                      ,Result.frmKey_lblSourceExt_caption              );
     Result.frmKey_lblDestExt_caption               := ReadString('frmKey_lblDestExt'               ,'CAPTION'                      ,Result.frmKey_lblDestExt_caption                );
     Result.frmKey_btnConvertAlgorithms_caption     := ReadString('frmKey_btnConvertAlgorithms'     ,'CAPTION'                      ,Result.frmKey_btnConvertAlgorithms_caption      );
+    Result.frmKey_chkChangeID3v2_caption           := ReadString('frmKey_chkChangeID3v2'           ,'CAPTION'                      ,Result.frmKey_chkChangeID3v2_caption            );
     Result.frmKey_Convert_Source_caption           := ReadString('frmKey_Convert_Source'           ,'CAPTION'                      ,Result.frmKey_Convert_Source_caption            );
     Result.frmKey_Convert_Destination_caption      := ReadString('frmKey_Convert_Destination'      ,'CAPTION'                      ,Result.frmKey_Convert_Destination_caption       );
 
@@ -535,6 +542,7 @@ end;
 function InitLanguageEng: TLanguage;
 //Default language values (eng)
 begin
+  result.Charset := DEFAULT_CHARSET;
   result.frmSmp2Mp3_caption                      := 'SMP <-> MP3 converter';
   result.gbSingleFile_caption                    := 'Convert a single file';
   result.btnConvertSingle_caption                := 'Convert';
@@ -557,6 +565,7 @@ begin
   Result.frmKey_lblSourceExt_caption             := 'Source ext.:';
   Result.frmKey_lblDestExt_caption               := 'Dest. ext.:';
   Result.frmKey_btnConvertAlgorithms_caption     := 'Convert between algorithms';
+  Result.frmKey_chkChangeID3v2_caption           := 'Change ID3v2.3 Tag  before encrypt (add filename to title).';
   Result.frmKey_Convert_Source_caption           := 'Original format';
   Result.frmKey_Convert_Destination_caption      := 'Destination format';
 
@@ -611,6 +620,7 @@ end;
 function InitLanguageSpa: TLanguage;
 //Default language values (spa)
 begin
+  result.Charset := DEFAULT_CHARSET;
   result.frmSmp2Mp3_caption                      := 'Convertidor SMP <-> MP3';
   result.gbSingleFile_caption                    := 'Convertir un solo archivo';
   result.btnConvertSingle_caption                := 'Convertir';
@@ -672,6 +682,7 @@ begin
   Result.frmKey_lblSourceExt_caption             := 'Ext. origen:';
   Result.frmKey_lblDestExt_caption               := 'Ext. destino:';
   Result.frmKey_btnConvertAlgorithms_caption     := 'Convertir entre algortimos';
+  Result.frmKey_chkChangeID3v2_caption           := 'Cambiar tag ID3v2.3 antes de encriptar (agregar el nombre del archivo al título).';
   Result.frmKey_Convert_Source_caption           := 'Formato origen';
   Result.frmKey_Convert_Destination_caption      := 'Formato destino';
   Result.fraOperation_lblXORkey_caption          := 'Llave XOR';
@@ -741,6 +752,7 @@ begin
     WriteString('ALGORITHM','SOURCEEXT',AnAlgorithm.SourceExt);
     WriteString('ALGORITHM','DESTEXT',AnAlgorithm.DestExt);
     WriteInteger('ALGORITHM','OPERATIONSCOUNT',length(AnAlgorithm.Operations));
+    WriteBool('ALGORITHM','CHANGEID3',AnAlgorithm.ChangeID3);
     lSections := TStringList.Create;
     try
       ReadSections(lSections);
@@ -835,6 +847,7 @@ begin
     lOperationsCount := ReadInteger('ALGORITHM','OPERATIONSCOUNT',0);
     result.SourceExt := ReadString('ALGORITHM','SOURCEEXT','.mp3');
     result.DestExt := ReadString('ALGORITHM','DESTEXT','.smp');
+    result.ChangeID3 := ReadBool('ALGORITHM','CHANGEID3',False);
     for i := 0 to lOperationsCount - 1 do
     begin
       lSectionname := 'OPERATION' + IntToStr(i);

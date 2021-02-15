@@ -16,16 +16,16 @@ type
     gbConvertBatch: TGroupBox;
     lblBOrigen: TLabel;
     btnBatchConvert: TButton;
-    rbBatchSmp2Mp3: TRadioButton;
-    rbBatchMp32Smp: TRadioButton;
+    rbBatchDecrypt: TRadioButton;
+    rbBatchEncrypt: TRadioButton;
     tmrAudioLevel: TTimer;
     chkNormalizar: TCheckBox;
     MainMenu: TMainMenu;
     mnuConfig: TMenuItem;
     mnuChangeKey: TMenuItem;
     mnuChangelanguage: TMenuItem;
-    rbSingleSmp2Mp3: TRadioButton;
-    rbSingleMp32Smp: TRadioButton;
+    rbSingleDecrypt: TRadioButton;
+    rbSingleEncrypt: TRadioButton;
     pbAudioLevel: TProgressBar;
     btnPlay: TSpeedButton;
     btnStop: TSpeedButton;
@@ -43,8 +43,8 @@ type
     N1: TMenuItem;
     procedure btnConvertSingleClick(Sender: TObject);
     procedure edFileNameChange(Sender: TObject);
-    procedure rbBatchSmp2Mp3Click(Sender: TObject);
-    procedure rbBatchMp32SmpClick(Sender: TObject);
+    procedure rbBatchDecryptClick(Sender: TObject);
+    procedure rbBatchEncryptClick(Sender: TObject);
     procedure btnBatchConvertClick(Sender: TObject);
     procedure btnPlayClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
@@ -87,6 +87,7 @@ type
     function GetAlgorithm: TAlgorithm;
     procedure SetAlgorithm(const Value: TAlgorithm);
     property Algorithm : TAlgorithm read GetAlgorithm write SetAlgorithm;
+    procedure SetCharset(aWInControl : TWinControl; ACharset : integer);
   public
     { Public declarations }
     procedure DoOnStopPlay;
@@ -115,7 +116,7 @@ var
 implementation
 
 uses
-  StrUtils, Math, IniFiles, KeyFrm, FileCtrl, mctFrm;
+  StrUtils, Math, IniFiles, KeyFrm, FileCtrl, mctFrm, ID3v2;
 
 {$R *.dfm}
 
@@ -380,7 +381,7 @@ begin
       MessageDlg(Language.MESSAGES_SOURCE_DIR_NOT_FOUND, mtError, [mbOK], 0);
       exit;
     end;
-    if not (rbBatchSmp2Mp3.Checked or rbBatchMp32Smp.Checked) then
+    if not (rbBatchDecrypt.Checked or rbBatchEncrypt.Checked) then
     begin
       MessageDlg(Language.MESSAGES_CONVERTION_TYPE_NOT_SELECTED, mtError, [mbOK], 0);
       exit;
@@ -399,7 +400,7 @@ begin
     end;
 
 
-    if rbBatchMp32Smp.Checked then
+    if rbBatchEncrypt.Checked then
       lSourceExt := Algorithm.SourceExt
     else
       lSourceExt := Algorithm.DestExt;
@@ -423,7 +424,7 @@ begin
         for i := 0 to FFilesFound.Count - 1 do
         begin
           lDestFileName := lDestDir + ChangeFileExt(ExtractFileName(FFilesFound[i]),ConvertExt(FFilesFound[i]));
-          ConvertSingleFile(FFilesFound[i],lDestFileName, rbBatchMp32Smp.Checked);
+          ConvertSingleFile(FFilesFound[i],lDestFileName, rbBatchEncrypt.Checked);
           IncProgress(lp);
         end;
       finally
@@ -445,6 +446,7 @@ var
   lDestExt: string;
   lSourceFileName, lDestFileName: string;
   lEncrypt : boolean;
+  lFilter : string;
 begin
   Enabled := false;
   try
@@ -456,9 +458,10 @@ begin
     end;
 
     lDestExt := ConvertExt(lSourceFileName);
+    lFilter := '*' + lDestExt + '|*' + lDestExt;
     //Ask for new file name
     lDestFileName := ExtractFileName(ChangeFileExt(lSourceFileName,lDestExt));
-    if not PromptForFileName(lDestFileName,'',lDestExt,Format(Language.MESSAGES_CONVERT_TO,[lDestExt]),'',true) then
+    if not PromptForFileName(lDestFileName,lFilter,lDestExt,Format(Language.MESSAGES_CONVERT_TO,[lDestExt]),'',true) then
       exit;
 
     if FileExists(lDestFileName) then
@@ -472,7 +475,7 @@ begin
       if uppercase(Algorithm.SourceExt) <> uppercase(Algorithm.DestExt) then
         lEncrypt := uppercase(ExtractFileExt(lSourceFileName)) = uppercase(Algorithm.SourceExt)
       else
-        lEncrypt := rbSingleMp32Smp.Checked;
+        lEncrypt := rbSingleEncrypt.Checked;
       ConvertSingleFile(lSourceFileName,lDestFileName, lEncrypt);
     finally
       btnPlay.Enabled := true;
@@ -487,6 +490,7 @@ procedure TfrmSmp2MP3.ChangeCaptions;
 var
   lDestExt : string;
 begin
+  SetCharset(Self,Language.Charset);
   caption := Language.frmSmp2Mp3_caption + ' v' + VersionString;
 
   mnuConfig.Caption := Language.mnuConfig_caption;
@@ -512,13 +516,13 @@ begin
     btnConvertSingle.Caption := Format(Language.MESSAGES_CONVERT_TO,[lDestExt])
   else
     btnConvertSingle.Caption := Language.MESSAGES_CONVERT;
-  rbSingleSmp2Mp3.Visible := AlgorithmHasRotation(Algorithm);
-  rbSingleMp32Smp.Visible := AlgorithmHasRotation(Algorithm);
+  rbSingleDecrypt.Visible := AlgorithmHasRotation(Algorithm);
+  rbSingleEncrypt.Visible := AlgorithmHasRotation(Algorithm);
   lblBOrigen.Caption := Language.lblBOrigen_caption;
-  rbBatchMp32Smp.Caption := Language.CAPTION_ENCRYPT + '(' + Algorithm.SourceExt + ' -> ' + Algorithm.DestExt + ')';
-  rbBatchSmp2Mp3.Caption := Language.CAPTION_DECRYPT + '(' + Algorithm.DestExt + ' -> ' + Algorithm.SourceExt + ')';
-  rbSingleMp32Smp.Caption := Language.CAPTION_ENCRYPT + '(' + Algorithm.SourceExt + ' -> ' + Algorithm.DestExt + ')';
-  rbSingleSmp2Mp3.Caption := Language.CAPTION_DECRYPT + '(' + Algorithm.DestExt + ' -> ' + Algorithm.SourceExt + ')';
+  rbBatchEncrypt.Caption := Language.CAPTION_ENCRYPT + '(' + Algorithm.SourceExt + ' -> ' + Algorithm.DestExt + ')';
+  rbBatchDecrypt.Caption := Language.CAPTION_DECRYPT + '(' + Algorithm.DestExt + ' -> ' + Algorithm.SourceExt + ')';
+  rbSingleEncrypt.Caption := Language.CAPTION_ENCRYPT + '(' + Algorithm.SourceExt + ' -> ' + Algorithm.DestExt + ')';
+  rbSingleDecrypt.Caption := Language.CAPTION_DECRYPT + '(' + Algorithm.DestExt + ' -> ' + Algorithm.SourceExt + ')';
   btnBatchConvert.Caption := Language.btnBatchConvert_caption;
 
   lDestExt := ConvertExt(edFileName.Text);
@@ -594,7 +598,16 @@ var
   i : integer;
   lKeyIndex : integer;
   lp : integer;
+  lUseTempFile : boolean;
+  lSourceFileName : string;
+  lID3v2 : TID3v2;
 begin
+  if not FileExists(ASourceFileName) then
+  begin
+    MessageDlg('Source filename does not exists.', mtError, [mbOK], 0);
+    exit;
+  end;
+
   if uppercase(ASourceFileName) = UpperCase(ADestFileName) then
   begin
     MessageDlg('Source and destination filename are the same.', mtError, [mbOK], 0);
@@ -602,41 +615,68 @@ begin
   end;
   AddHourGlassCursor;
   try
-    //If it must normalize before encrypting
-    if chkNormalizar.Checked and (UpperCase(ExtractFileExt(ASourceFileName)) = '.MP3') then
-      NormalizeAudio(ASourceFileName);
-    lKeyIndex := 0;
-    //create file streams
-    lSourceFile := TFileStream.Create(ASourceFileName, fmOpenRead);
-    lDestFile := TFileStream.Create(ADestFileName, fmCreate);
+    lSourceFileName := ASourceFileName;
+    lUseTempFile := (chkNormalizar.Checked or Algorithm.ChangeID3) and AEncrypt and (UpperCase(ExtractFileExt(ASourceFileName)) = '.MP3');
+    if lUseTempFile then
+    begin
+      lSourceFileName := ExtractFilePath(Application.ExeName) + 'tmp_' + ExtractFileName(ASourceFileName);
+      if FileExists(lSourceFileName) then
+        DeleteFile(lSourceFileName);
+      CopyFile(PChar(ASourceFileName), PChar(lSourceFileName),false);
+    end;
     try
-      lp := AddProgress(ceil(lSourceFile.Size/(BUFFER_MAX + 1)),Language.CAPTION_PROCESSING + ' ' + ExtractFileName(ASourceFileName) + '...');
+      //If it must normalize before encrypting
+      if chkNormalizar.Checked and (UpperCase(ExtractFileExt(lSourceFileName)) = '.MP3') then
+        NormalizeAudio(lSourceFileName);
+      //If it must change the ID3Tag
+      if Algorithm.ChangeID3 and (UpperCase(ExtractFileExt(lSourceFileName)) = '.MP3') then
+      begin
+        lID3v2 := TID3v2.Create;
+        try
+          lID3v2.ReadFromFile(lSourceFileName);
+          lID3v2.ResetData;
+          lID3v2.Title := StripFileName(ADestFileName);
+          lID3v2.SaveToFile(lSourceFileName);
+        finally
+          lID3v2.Free;
+        end;
+      end;
+      lKeyIndex := 0;
+      //create file streams
+      lSourceFile := TFileStream.Create(lSourceFileName, fmOpenRead);
+      lDestFile := TFileStream.Create(ADestFileName, fmCreate);
       try
-        while lSourceFile.Position < lSourceFile.Size do    //read while the end of file has not being reached
-        begin
-          //read source file in 1024 Byte chunks
-          lReadBytes := lSourceFile.Read(lBuffer, (BUFFER_MAX + 1));
-          //Encrypt/Decrypt all bytes read all by
-          for i := 0 to lReadBytes - 1 do
+        lp := AddProgress(ceil(lSourceFile.Size/(BUFFER_MAX + 1)),Language.CAPTION_PROCESSING + ' ' + ExtractFileName(lSourceFileName) + '...');
+        try
+          while lSourceFile.Position < lSourceFile.Size do    //read while the end of file has not being reached
           begin
-            lDecodedBuffer[i] := ProcessByte(lBuffer[i],lKeyIndex,AEncrypt);
-            inc(lKeyIndex);
+            //read source file in 1024 Byte chunks
+            lReadBytes := lSourceFile.Read(lBuffer, (BUFFER_MAX + 1));
+            //Encrypt/Decrypt all bytes read all by
+            for i := 0 to lReadBytes - 1 do
+            begin
+              lDecodedBuffer[i] := ProcessByte(lBuffer[i],lKeyIndex,AEncrypt);
+              inc(lKeyIndex);
+            end;
+            //Write decoded chunk
+            lDestFile.Write(lDecodedBuffer,lReadBytes);
+            IncProgress(lp);
           end;
-          //Write decoded chunk
-          lDestFile.Write(lDecodedBuffer,lReadBytes);
-          IncProgress(lp);
+        finally
+          DelProgress(lp);
         end;
       finally
-        DelProgress(lp);
+        //free filestreams
+        lDestFile.Free;
+        lSourceFile.Free;
       end;
+      //If it must normalize after decrypting
+      if chkNormalizar.Checked and (UpperCase(ExtractFileExt(ADestFileName)) = '.MP3') then
+        NormalizeAudio(ADestFileName);
     finally
-      //free filestreams
-      lDestFile.Free;
-      lSourceFile.Free;
+      if lUseTempFile then
+        DeleteFile(lSourceFileName);
     end;
-    //If it must normalize after decrypting
-    if chkNormalizar.Checked and (UpperCase(ExtractFileExt(ADestFileName)) = '.MP3') then
-      NormalizeAudio(ADestFileName);
   finally
     RemoveHourGlassCursor;
   end;
@@ -671,6 +711,13 @@ procedure TfrmSmp2MP3.edFileNameChange(Sender: TObject);
 //change button caption when the filename changes
 begin
   ChangeCaptions;
+  if UpperCase(GlobalAlgorithm.SourceExt) <> UpperCase(GlobalAlgorithm.DestExt) then
+  begin
+    if UpperCase(edFileName.Text) = UpperCase(GlobalAlgorithm.SourceExt) then
+      rbSingleEncrypt.Checked
+    else if UpperCase(edFileName.Text) = UpperCase(GlobalAlgorithm.DestExt) then
+      rbSingleDecrypt.Checked;
+  end;
 end;
 
 procedure TfrmSmp2MP3.FileFound(AFilename: string);
@@ -833,6 +880,7 @@ end;
 procedure TfrmSmp2MP3.mniLanguageEngClick(Sender: TObject);
 begin
   LoadLanguage(InitLanguageEng);
+  WriteLanguageToFile(LanguagesPath + 'eng.lan',Language);
   with TIniFile.Create(IniFileName) do
   try
     WriteString('LANGUAGE','FILE',ExtractFilePath(Application.ExeName) + 'Languages\eng.lan');
@@ -849,6 +897,7 @@ end;
 procedure TfrmSmp2MP3.mniLanguageSpaClick(Sender: TObject);
 begin
   LoadLanguage(InitLanguageSpa);
+  WriteLanguageToFile(LanguagesPath + 'spa.lan',Language);
   with TIniFile.Create(IniFileName) do
   try
     WriteString('LANGUAGE','FILE',ExtractFilePath(Application.ExeName) + 'Languages\spa.lan');
@@ -1060,12 +1109,12 @@ begin
   DoOnStopPlay;
 end;
 
-procedure TfrmSmp2MP3.rbBatchMp32SmpClick(Sender: TObject);
+procedure TfrmSmp2MP3.rbBatchEncryptClick(Sender: TObject);
 begin
   ChangeCaptions;
 end;
 
-procedure TfrmSmp2MP3.rbBatchSmp2Mp3Click(Sender: TObject);
+procedure TfrmSmp2MP3.rbBatchDecryptClick(Sender: TObject);
 begin
   ChangeCaptions;
 end;
@@ -1086,6 +1135,20 @@ procedure TfrmSmp2MP3.SetAlgorithm(const Value: TAlgorithm);
 begin
   GlobalAlgorithm := Value;
   btnPlay.Enabled := uppercase(Value.SourceExt) = '.MP3';  
+end;
+
+procedure TfrmSmp2MP3.SetCharset(aWInControl: TWinControl; ACharset: integer);
+var
+  i: Integer;
+begin
+  for i := 0 to aWInControl.ComponentCount - 1 do
+  begin
+    if aWInControl.Components[i] is TWinControl then
+      SetCharset(aWInControl.Components[i] as TWinControl,ACharset)
+    else if aWInControl.Components[i] is TLabel then
+      (aWInControl.Components[i] as TLabel).Font.Charset := ACharset;
+         
+  end;
 end;
 
 procedure TfrmSmp2MP3.SetProgress(AnIndex, AProgress: integer);

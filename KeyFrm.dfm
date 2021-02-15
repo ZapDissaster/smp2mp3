@@ -192,12 +192,6 @@ object frmKey: TfrmKey
       0000000000000000000000008080008080008080008080008080}
     OnClick = sbClearOperationsClick
   end
-  object SpeedButton1: TSpeedButton
-    Left = 45
-    Top = 111
-    Width = 23
-    Height = 22
-  end
   object btnOK: TButton
     Left = 388
     Top = 464
@@ -207,7 +201,6 @@ object frmKey: TfrmKey
     Caption = '&OK'
     TabOrder = 0
     OnClick = btnOKClick
-    ExplicitTop = 382
   end
   object btnCancel: TButton
     Left = 469
@@ -218,7 +211,6 @@ object frmKey: TfrmKey
     Caption = '&Cancel'
     TabOrder = 1
     OnClick = btnCancelClick
-    ExplicitTop = 382
   end
   object sbOperations: TScrollBox
     Left = 104
@@ -227,7 +219,6 @@ object frmKey: TfrmKey
     Height = 362
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 2
-    ExplicitHeight = 280
   end
   object edSourceExt: TEdit
     Left = 104
@@ -236,7 +227,6 @@ object frmKey: TfrmKey
     Height = 21
     Anchors = [akLeft, akBottom]
     TabOrder = 3
-    ExplicitTop = 322
   end
   object edDestExt: TEdit
     Left = 104
@@ -245,7 +235,6 @@ object frmKey: TfrmKey
     Height = 21
     Anchors = [akLeft, akBottom]
     TabOrder = 4
-    ExplicitTop = 349
   end
   object btnConvertAlgorithms: TButton
     Left = 388
@@ -256,6 +245,15 @@ object frmKey: TfrmKey
     Caption = 'Convert between algorithms'
     TabOrder = 5
     OnClick = btnConvertAlgorithmsClick
+  end
+  object chkChangeID3v2: TCheckBox
+    Left = 8
+    Top = 458
+    Width = 374
+    Height = 17
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'Change ID3v2.3 Tag  before encrypt (add filename to title).'
+    TabOrder = 6
   end
   object PopupMenu: TPopupMenu
     AutoHotkeys = maManual

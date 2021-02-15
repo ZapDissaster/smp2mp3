@@ -22,8 +22,8 @@ type
     edDestExt: TEdit;
     sbAddOperation: TSpeedButton;
     sbClearOperations: TSpeedButton;
-    SpeedButton1: TSpeedButton;
     btnConvertAlgorithms: TButton;
+    chkChangeID3v2: TCheckBox;
     procedure btnOKClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure sbLoadKeyClick(Sender: TObject);
@@ -59,6 +59,7 @@ type
     procedure SetOperations(const Value: TAlgorithmOperationArray);
     property Operations : TAlgorithmOperationArray read GetOperations write SetOperations;
     function AppendFrame : TFraOperation;
+    procedure ChangeCaption;
   public
     { Public declarations }
     property SelectedKeyName : string read FSelectedKeyName write SetSelectedAlgorithmName;
@@ -133,6 +134,7 @@ begin
       lAlgorithm2 := LoadKeyFromFile(lFilename2);
       edSourceExt.Text := lAlgorithm1.DestExt;
       edDestExt.Text := lAlgorithm2.DestExt;
+      chkChangeID3v2.Checked := false;
       lOperations := InvertOperations(lAlgorithm1.Operations);
       for i := 0 to Length(lAlgorithm2.Operations) - 1 do
         AddOperationToOperations(lOperations,lAlgorithm2.Operations[i]);
@@ -146,6 +148,13 @@ end;
 procedure TfrmKey.cboTimeChange(Sender: TObject);
 begin
   SelectedKeyName := '';
+end;
+
+procedure TfrmKey.ChangeCaption;
+begin
+  caption := Language.frmKey_caption;
+  if StripFileName(SelectedKeyName) <> '' then
+    caption := Caption + '(' + StripFileName(SelectedKeyName) + ')';
 end;
 
 procedure TfrmKey.DeleteOperationFrame(AFrame: TFraOperation);
@@ -172,6 +181,7 @@ begin
   Result.Name := StripFileName(SelectedKeyName);
   Result.SourceExt := edSourceExt.Text;
   Result.DestExt := edDestExt.Text;
+  result.ChangeID3 := chkChangeID3v2.Checked;
   result.Operations := Operations;
 end;
 
@@ -280,6 +290,7 @@ begin
   try
     edSourceExt.Text := Value.SourceExt;
     edDestExt.Text := Value.DestExt;
+    chkChangeID3v2.Checked := Value.ChangeID3;
     Operations := Value.Operations;
   finally
     GLoadingKey := false;
@@ -289,13 +300,15 @@ end;
 procedure TfrmKey.SetLanguage(const Value: TLanguage);
 begin
   FLanguage := Value;
-  Caption := FLanguage.frmKey_btnOK_caption;
+  Caption := FLanguage.frmKey_caption;
   btnOK.Caption := FLanguage.frmKey_btnOK_caption;
   btnCancel.Caption := FLanguage.frmKey_btnCancel_caption;
   lbloperations.Caption := FLanguage.frmKey_lblOperations_caption;
   lblSourceExt.Caption := FLanguage.frmKey_lblSourceExt_caption;
   lblDestExt.Caption := FLanguage.frmKey_lblDestExt_caption;
   btnConvertAlgorithms.Caption := FLanguage.frmKey_btnConvertAlgorithms_caption;
+  chkChangeID3v2.Caption :=  FLanguage.frmKey_chkChangeID3v2_caption;
+  ChangeCaption;
 end;
 
 procedure TfrmKey.SetOperations(const Value: TAlgorithmOperationArray);
@@ -318,6 +331,7 @@ begin
   if GLoadingKey then
     exit;
   FSelectedKeyName := StripFileName(Value);
+  ChangeCaption;
 end;
 
 procedure TfrmKey.sbSaveKeyClick(Sender: TObject);
