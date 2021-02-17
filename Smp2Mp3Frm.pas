@@ -41,6 +41,8 @@ type
     mniLanguageSpa: TMenuItem;
     mniLanguageOther: TMenuItem;
     N1: TMenuItem;
+    mniTools: TMenuItem;
+    mniRenameFiles: TMenuItem;
     procedure btnConvertSingleClick(Sender: TObject);
     procedure edFileNameChange(Sender: TObject);
     procedure rbBatchDecryptClick(Sender: TObject);
@@ -59,6 +61,7 @@ type
     procedure mniLanguageOtherClick(Sender: TObject);
     procedure mniLanguageEngClick(Sender: TObject);
     procedure mniLanguageSpaClick(Sender: TObject);
+    procedure mniRenameFilesClick(Sender: TObject);
   private
     { Private declarations }
     FFilesFound : TStringList;
@@ -88,6 +91,9 @@ type
     procedure SetAlgorithm(const Value: TAlgorithm);
     property Algorithm : TAlgorithm read GetAlgorithm write SetAlgorithm;
     procedure SetCharset(aWInControl : TWinControl; ACharset : integer);
+    function IsKnownFormat(AFileName : string) : boolean;
+  protected
+    procedure WMDropFiles(var Msg: TWMDropFiles); message wm_DropFiles;
   public
     { Public declarations }
     procedure DoOnStopPlay;
@@ -116,11 +122,12 @@ var
 implementation
 
 uses
-  StrUtils, Math, IniFiles, KeyFrm, FileCtrl, mctFrm, ID3v2;
+  StrUtils, Math, IniFiles, KeyFrm, FileCtrl, mctFrm, ID3v2, ID3v1,ShellAPI,
+  RenameFilesFrm;
 
 {$R *.dfm}
 
-procedure EndSyncProc(hSync: Thandle; hChan: DWORD; data: DWORD; MyObject: Pointer); stdcall;
+procedure EndSyncProc(hSync: HSYNC; hChan: DWORD; data: DWORD; MyObject: Pointer); stdcall;
 //Call audio stop actions when audio reaches end of file
 var
   lForm : TfrmSmp2MP3;
@@ -475,7 +482,12 @@ begin
       if uppercase(Algorithm.SourceExt) <> uppercase(Algorithm.DestExt) then
         lEncrypt := uppercase(ExtractFileExt(lSourceFileName)) = uppercase(Algorithm.SourceExt)
       else
-        lEncrypt := rbSingleEncrypt.Checked;
+      begin
+        if not AlgorithmIsBidirectional(Algorithm) then
+          lEncrypt := rbSingleEncrypt.Checked
+        else
+          lEncrypt := true;
+      end;
       ConvertSingleFile(lSourceFileName,lDestFileName, lEncrypt);
     finally
       btnPlay.Enabled := true;
@@ -497,6 +509,8 @@ begin
   mnuChangeKey.Caption := Language.mnuChangeKey_caption;
   mnuChangelanguage.Caption := Language.mnuChangelanguage_caption;
   mniGenerateMCT.Caption := Language.mniGenerateMCT_caption;
+  mniTools.Caption := Language.mniTools_caption;
+  mniRenameFiles.caption := Language.mniRenameFiles_caption;
   if assigned(FmniChangeKeyOther) then
     FmniChangeKeyOther.Caption :=Language.mnuChangeKey_other_caption;
   mniLanguageOther.Caption :=Language.mnuChangeKey_other_caption;
@@ -516,8 +530,8 @@ begin
     btnConvertSingle.Caption := Format(Language.MESSAGES_CONVERT_TO,[lDestExt])
   else
     btnConvertSingle.Caption := Language.MESSAGES_CONVERT;
-  rbSingleDecrypt.Visible := AlgorithmHasRotation(Algorithm);
-  rbSingleEncrypt.Visible := AlgorithmHasRotation(Algorithm);
+  rbSingleDecrypt.Visible := (UpperCase(GlobalAlgorithm.SourceExt) = UpperCase(GlobalAlgorithm.DestExt)) and (not AlgorithmIsBidirectional(Algorithm));
+  rbSingleEncrypt.Visible := (UpperCase(GlobalAlgorithm.SourceExt) = UpperCase(GlobalAlgorithm.DestExt)) and (not AlgorithmIsBidirectional(Algorithm));
   lblBOrigen.Caption := Language.lblBOrigen_caption;
   rbBatchEncrypt.Caption := Language.CAPTION_ENCRYPT + '(' + Algorithm.SourceExt + ' -> ' + Algorithm.DestExt + ')';
   rbBatchDecrypt.Caption := Language.CAPTION_DECRYPT + '(' + Algorithm.DestExt + ' -> ' + Algorithm.SourceExt + ')';
@@ -600,6 +614,7 @@ var
   lp : integer;
   lUseTempFile : boolean;
   lSourceFileName : string;
+  lID3v1 : TID3v1;
   lID3v2 : TID3v2;
 begin
   if not FileExists(ASourceFileName) then
@@ -631,6 +646,12 @@ begin
       //If it must change the ID3Tag
       if Algorithm.ChangeID3 and (UpperCase(ExtractFileExt(lSourceFileName)) = '.MP3') then
       begin
+        lID3v1 := TID3v1.Create;
+        try
+          lID3v1.RemoveFromFile(lSourceFileName);
+        finally
+          lID3v1.Free;
+        end;
         lID3v2 := TID3v2.Create;
         try
           lID3v2.ReadFromFile(lSourceFileName);
@@ -711,12 +732,10 @@ procedure TfrmSmp2MP3.edFileNameChange(Sender: TObject);
 //change button caption when the filename changes
 begin
   ChangeCaptions;
-  if UpperCase(GlobalAlgorithm.SourceExt) <> UpperCase(GlobalAlgorithm.DestExt) then
+  if (rbSingleEncrypt.Visible) and (UpperCase(GlobalAlgorithm.SourceExt) <> UpperCase(GlobalAlgorithm.DestExt)) then
   begin
-    if UpperCase(edFileName.Text) = UpperCase(GlobalAlgorithm.SourceExt) then
-      rbSingleEncrypt.Checked
-    else if UpperCase(edFileName.Text) = UpperCase(GlobalAlgorithm.DestExt) then
-      rbSingleDecrypt.Checked;
+    rbSingleEncrypt.Checked := UpperCase(ExtractFileExt(edFileName.Text)) = UpperCase(GlobalAlgorithm.SourceExt);
+    rbSingleDecrypt.Checked := UpperCase(ExtractFileExt(edFileName.Text)) = UpperCase(GlobalAlgorithm.DestExt);
   end;
 end;
 
@@ -732,6 +751,8 @@ var
   lLanguageFile : string;
   lMenuItem : TMenuItem;
 begin
+  Randomize;
+  DragAcceptFiles(Self.Handle,true);
   ForceDirectories(LanguagesPath);
   ForceDirectories(KeysPath);
   Player := 0;
@@ -774,6 +795,7 @@ end;
 
 procedure TfrmSmp2MP3.FormDestroy(Sender: TObject);
 begin
+  DragAcceptFiles(Self.Handle,false);
   FProgressBars.Free;
   FProgressLabels.Free;
 end;
@@ -847,6 +869,14 @@ begin
   ChangeCaptions;
 end;
 
+function TfrmSmp2MP3.IsKnownFormat(AFileName: string): boolean;
+var
+  lExt : string;
+begin
+  lExt := UpperCase(ExtractFileExt(AFileName));
+  result := (lExt = UpperCase(Algorithm.SourceExt)) or (lExt = UpperCase(Algorithm.DestExt));
+end;
+
 procedure TfrmSmp2MP3.LoadLanguage(ALanguage: TLanguage);
 begin
   Language := ALanguage;
@@ -903,6 +933,17 @@ begin
     WriteString('LANGUAGE','FILE',ExtractFilePath(Application.ExeName) + 'Languages\spa.lan');
   finally
     free;
+  end;
+end;
+
+procedure TfrmSmp2MP3.mniRenameFilesClick(Sender: TObject);
+begin
+  with TFrmRenameFiles.Create(nil) do
+  try
+    Language := self.Language;
+    ShowModal;
+  finally
+    Free;
   end;
 end;
 
@@ -1234,6 +1275,34 @@ begin
   try
     pbAudioLevel.Position := trunc(lRightdB * ((100 - tbVol.Position) / 100));
   except
+  end;
+end;
+
+procedure TfrmSmp2MP3.WMDropFiles(var Msg: TWMDropFiles);
+var
+  lFilename: array [0 .. 256] of char;
+  lNumberOfFiles: Integer;
+begin
+  AddHourGlassCursor;
+  try
+    try
+      lNumberOfFiles := DragQueryFile(Msg.Drop, $FFFFFFFF, nil, 0);
+      if lNumberOfFiles = 1 then
+      begin
+        DragQueryFile(Msg.Drop, 0, lFilename, SizeOf(lFilename));
+        if (FileExists(lFilename)) and (IsKnownFormat(lFilename)) then
+          edFileName.Text := lFilename
+        else
+          MessageDlg('File type not cupported by the current algorithm.', mtError, [mbOK], 0);
+      end
+      else
+        MessageDlg('This application only allows dropping one file at a time.', mtError, [mbOK], 0);
+    finally
+      DragFinish(Msg.Drop);
+    end;
+    inherited;
+  finally
+    RemoveHourGlassCursor;
   end;
 end;
 

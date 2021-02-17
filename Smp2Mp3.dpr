@@ -6,7 +6,10 @@ uses
   KeyFrm in 'KeyFrm.pas' {frmKey},
   mctFrm in 'mctFrm.pas' {frmMCT},
   smp2mp3Utils in 'smp2mp3Utils.pas',
-  OperationFra in 'OperationFra.pas' {FraOperation: TFrame};
+  OperationFra in 'OperationFra.pas' {FraOperation: TFrame},
+  ID3v2 in 'ID3v2.pas',
+  ID3v1 in 'ID3v1.pas',
+  RenameFilesFrm in 'RenameFilesFrm.pas' {FrmRenameFiles};
 
 {$R *.res}
 

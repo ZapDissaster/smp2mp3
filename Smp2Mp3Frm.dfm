@@ -398,9 +398,16 @@ object frmSmp2MP3: TfrmSmp2MP3
         end
       end
     end
-    object mniGenerateMCT: TMenuItem
-      Caption = 'Generar mct'
-      OnClick = mniGenerateMCTClick
+    object mniTools: TMenuItem
+      Caption = 'Herramientas'
+      object mniGenerateMCT: TMenuItem
+        Caption = 'Generar mct'
+        OnClick = mniGenerateMCTClick
+      end
+      object mniRenameFiles: TMenuItem
+        Caption = 'Renombrar archivos en serie'
+        OnClick = mniRenameFilesClick
+      end
     end
   end
   object OpenDialog: TOpenDialog

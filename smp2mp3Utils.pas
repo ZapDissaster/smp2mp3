@@ -45,7 +45,9 @@ type
     mnuChangeKey_caption : string;
     mnuChangeKey_other_caption : string;
     mnuChangelanguage_caption : string;
+    mniTools_caption : string;
     mniGenerateMCT_caption : string;
+    mniRenameFiles_caption : string;
     frmKey_caption : string;
     frmKey_btnOK_caption : string;
     frmKey_btnCancel_caption : string;
@@ -75,6 +77,13 @@ type
     frmMct_gbExample_Caption : string;
     frmMct_btnGenerate_Caption : string;
     frmMct_btnClose_Caption : string;
+
+    frmRenameFiles_caption : string;
+    frmRenameFiles_lblFirstFileName_caption : string;
+    frmRenameFiles_btnRename_caption : string;
+    frmRenameFiles_chkShowPreview_caption : string;
+
+
     MESSAGES_FILES_GENERATED : string;
     MESSAGES_FILE_NOT_FOUND : string;
     MESSAGES_SOURCE_DIR_NOT_FOUND : string;
@@ -92,6 +101,9 @@ type
     MESSAGES_OVERWRITE_PROMPT : string;
     MESSAGES_COULD_NOT_CREATE_STREAM : string;
     MESSAGES_COULD_NOT_PLAY_FILE : string;
+    MESSAGES_frmRenameFiles_INVALID_SERIAL : string;
+    MESSAGES_frmRenameFiles_RENAME_WARNING : string;
+    MESSAGES_frmRenameFiles_RENAME_SUCCESS : string;
     CAPTION_NORMALIZE_BEFORE : string;
     CAPTION_NORMALIZE_AFTER : string;
     CAPTION_ENCRYPT : string;
@@ -108,7 +120,7 @@ type
 
 
 procedure FindFiles(ADirName : string; AFileExt: string; AOnFileFound : TFileFoundEvent);
-function AlgorithmHasRotation(AnAlgorithm : TAlgorithm) : boolean;
+function AlgorithmIsBidirectional(AnAlgorithm : TAlgorithm) : boolean;
 procedure AddOperationToAlgorithm(var vAlgorithm : TAlgorithm; AnOperationType : TOperationType;
     aXorKey : TByteArray; aRotateDirection : TRotateDirection; aRotateCount : integer); overload;
 procedure AddOperationToAlgorithm(var vAlgorithm : TAlgorithm; AnOperation : TAlgorithmOperation); overload;
@@ -383,7 +395,9 @@ begin
     WriteString('mnuChangeKey'                    ,'CAPTION'                      ,ALanguage.mnuChangeKey_caption                     );
     WriteString('mnuChangeKey_other'              ,'CAPTION'                      ,ALanguage.mnuChangeKey_other_caption               );
     WriteString('mnuChangelanguage'               ,'CAPTION'                      ,ALanguage.mnuChangelanguage_caption                );
+    WriteString('mniTools'                        ,'CAPTION'                      ,ALanguage.mniTools_caption                         );
     WriteString('mniGenerateMCT'                  ,'CAPTION'                      ,ALanguage.mniGenerateMCT_caption                   );
+    WriteString('mniRenameFiles'                  ,'CAPTION'                      ,ALanguage.mniRenameFiles_caption                   );
 
     WriteString('frmKey'                          ,'CAPTION'                      ,ALanguage.frmKey_caption                           );
     WriteString('frmKey_btnOK'                    ,'CAPTION'                      ,ALanguage.frmKey_btnOK_caption                     );
@@ -417,6 +431,12 @@ begin
     WriteString('frmMct_gbExample'                ,'CAPTION'                      ,ALanguage.frmMct_gbExample_Caption                 );
     WriteString('frmMct_btnGenerate'              ,'CAPTION'                      ,ALanguage.frmMct_btnGenerate_Caption               );
     WriteString('frmMct_btnClose'                 ,'CAPTION'                      ,ALanguage.frmMct_btnClose_Caption                  );
+
+    WriteString('frmRenameFiles'                  ,'CAPTION'                      ,ALanguage.frmRenameFiles_caption                   );
+    WriteString('frmRenameFiles_lblFirstFileName' ,'CAPTION'                      ,ALanguage.frmRenameFiles_lblFirstFileName_caption  );
+    WriteString('frmRenameFiles_btnRename'        ,'CAPTION'                      ,ALanguage.frmRenameFiles_btnRename_caption         );
+    WriteString('frmRenameFiles_chkShowPreview'   ,'CAPTION'                      ,ALanguage.frmRenameFiles_chkShowPreview_caption    );
+
     WriteString('MESSAGES'                        ,'FILES_GENERATED'              ,ALanguage.MESSAGES_FILES_GENERATED                 );
     WriteString('MESSAGES'                        ,'FILE_NOT_FOUND'               ,Alanguage.MESSAGES_FILE_NOT_FOUND                  );
     WriteString('MESSAGES'                        ,'SOURCE_DIR_NOT_FOUND'         ,Alanguage.MESSAGES_SOURCE_DIR_NOT_FOUND            );
@@ -434,6 +454,9 @@ begin
     WriteString('MESSAGES'                        ,'OVERWRITE_PROMPT'             ,Alanguage.MESSAGES_OVERWRITE_PROMPT                );
     WriteString('MESSAGES'                        ,'COULD_NOT_CREATE_STREAM'      ,Alanguage.MESSAGES_COULD_NOT_CREATE_STREAM         );
     WriteString('MESSAGES'                        ,'COULD_NOT_PLAY_FILE'          ,Alanguage.MESSAGES_COULD_NOT_PLAY_FILE             );
+    WriteString('MESSAGES'                        ,'frmRenameFiles_INVALID_SERIAL'  ,Alanguage.MESSAGES_frmRenameFiles_INVALID_SERIAL );
+    WriteString('MESSAGES'                        ,'frmRenameFiles_RENAME_WARNING'  ,Alanguage.MESSAGES_frmRenameFiles_RENAME_WARNING );
+    WriteString('MESSAGES'                        ,'frmRenameFiles_RENAME_SUCCESS'  ,Alanguage.MESSAGES_frmRenameFiles_RENAME_SUCCESS );
     WriteString('CAPTION'                         ,'NORMALIZE_BEFORE'             ,ALanguage.CAPTION_NORMALIZE_BEFORE                 );
     WriteString('CAPTION'                         ,'NORMALIZE_AFTER'              ,ALanguage.CAPTION_NORMALIZE_AFTER                  );
     WriteString('CAPTION'                         ,'ENCRYPT'                      ,ALanguage.CAPTION_ENCRYPT                          );
@@ -470,7 +493,9 @@ begin
     result.mnuChangeKey_caption                    := ReadString('mnuChangeKey'                ,'CAPTION'                      ,result.mnuChangeKey_caption                    );
     result.mnuChangeKey_other_caption              := ReadString('mnuChangeKey_other'          ,'CAPTION'                      ,result.mnuChangeKey_other_caption              );
     result.mnuChangelanguage_caption               := ReadString('mnuChangelanguage'           ,'CAPTION'                      ,result.mnuChangelanguage_caption               );
+    Result.mniTools_caption                        := ReadString('mniTools'                    ,'CAPTION'                      ,Result.mniTools_caption                         );
     result.mniGenerateMCT_caption                  := ReadString('mniGenerateMCT'              ,'CAPTION'                      ,result.mniGenerateMCT_caption                  );
+    Result.mniRenameFiles_caption                  := ReadString('mniRenameFiles'              ,'CAPTION'                      ,Result.mniRenameFiles_caption                   );
 
     Result.frmKey_caption                          := ReadString('frmKey'                          ,'CAPTION'                      ,Result.frmKey_caption                           );
     Result.frmKey_btnOK_caption                    := ReadString('frmKey_btnOK'                    ,'CAPTION'                      ,Result.frmKey_btnOK_caption                     );
@@ -505,6 +530,12 @@ begin
     result.frmMct_gbExample_Caption                := ReadString('frmMct_gbExample'            ,'CAPTION'                      ,result.frmMct_gbExample_Caption                );
     result.frmMct_btnGenerate_Caption              := ReadString('frmMct_btnGenerate'          ,'CAPTION'                      ,result.frmMct_btnGenerate_Caption              );
     result.frmMct_btnClose_Caption                 := ReadString('frmMct_btnClose'             ,'CAPTION'                      ,result.frmMct_btnClose_Caption                 );
+
+    Result.frmRenameFiles_caption                  := ReadString('frmRenameFiles'                  ,'CAPTION'                      ,Result.frmRenameFiles_caption                   );
+    Result.frmRenameFiles_lblFirstFileName_caption := ReadString('frmRenameFiles_lblFirstFileName' ,'CAPTION'                      ,Result.frmRenameFiles_lblFirstFileName_caption  );
+    Result.frmRenameFiles_btnRename_caption        := ReadString('frmRenameFiles_btnRename'        ,'CAPTION'                      ,Result.frmRenameFiles_btnRename_caption         );
+    Result.frmRenameFiles_chkShowPreview_caption   := ReadString('frmRenameFiles_chkShowPreview'   ,'CAPTION'                      ,Result.frmRenameFiles_chkShowPreview_caption    );
+
     result.MESSAGES_FILES_GENERATED                := ReadString('MESSAGES'                    ,'FILES_GENERATED'              ,result.MESSAGES_FILES_GENERATED                );
     result.MESSAGES_FILE_NOT_FOUND                 := ReadString('MESSAGES'                    ,'FILE_NOT_FOUND'               ,result.MESSAGES_FILE_NOT_FOUND                 );
     result.MESSAGES_SOURCE_DIR_NOT_FOUND           := ReadString('MESSAGES'                    ,'SOURCE_DIR_NOT_FOUND'         ,result.MESSAGES_SOURCE_DIR_NOT_FOUND           );
@@ -522,6 +553,9 @@ begin
     result.MESSAGES_OVERWRITE_PROMPT               := ReadString('MESSAGES'                    ,'OVERWRITE_PROMPT'             ,result.MESSAGES_OVERWRITE_PROMPT               );
     result.MESSAGES_COULD_NOT_CREATE_STREAM        := ReadString('MESSAGES'                    ,'COULD_NOT_CREATE_STREAM'      ,result.MESSAGES_COULD_NOT_CREATE_STREAM        );
     result.MESSAGES_COULD_NOT_PLAY_FILE            := ReadString('MESSAGES'                    ,'COULD_NOT_PLAY_FILE'          ,result.MESSAGES_COULD_NOT_PLAY_FILE            );
+    Result.MESSAGES_frmRenameFiles_INVALID_SERIAL  := ReadString('MESSAGES'                    ,'frmRenameFiles_INVALID_SERIAL'  ,Result.MESSAGES_frmRenameFiles_INVALID_SERIAL );
+    Result.MESSAGES_frmRenameFiles_RENAME_WARNING  := ReadString('MESSAGES'                    ,'frmRenameFiles_RENAME_WARNING'  ,Result.MESSAGES_frmRenameFiles_RENAME_WARNING );
+    Result.MESSAGES_frmRenameFiles_RENAME_SUCCESS  := ReadString('MESSAGES'                    ,'frmRenameFiles_RENAME_SUCCESS'  ,Result.MESSAGES_frmRenameFiles_RENAME_SUCCESS );
     result.CAPTION_NORMALIZE_BEFORE                := ReadString('CAPTION'                     ,'NORMALIZE_BEFORE'             ,result.CAPTION_NORMALIZE_BEFORE                );
     result.CAPTION_NORMALIZE_AFTER                 := ReadString('CAPTION'                     ,'NORMALIZE_AFTER'              ,result.CAPTION_NORMALIZE_AFTER                 );
     result.CAPTION_ENCRYPT                         := ReadString('CAPTION'                     ,'ENCRYPT'                      ,result.CAPTION_ENCRYPT                         );
@@ -556,6 +590,8 @@ begin
   result.mnuChangeKey_other_caption              := 'Other...';
   result.mnuChangelanguage_caption               := 'Change language';
   result.mniGenerateMCT_caption                  := 'TAG file generator';
+  Result.mniTools_caption                        := 'Tools';
+  Result.mniRenameFiles_caption                  := 'Serial rename files';
   Result.frmKey_caption                          := 'Change encryption algorithm';
   Result.frmKey_btnOK_caption                    := 'OK';
   Result.frmKey_btnCancel_caption                := 'Cancel';
@@ -586,6 +622,12 @@ begin
   result.frmMct_gbExample_Caption                := 'Files to be played with the generated tags';
   result.frmMct_btnGenerate_Caption              := 'Generate';
   result.frmMct_btnClose_Caption                 := 'Close';
+
+  Result.frmRenameFiles_caption                  := 'Serial rename files';
+  Result.frmRenameFiles_lblFirstFileName_caption := 'name of the first renamed file:';
+  Result.frmRenameFiles_btnRename_caption        := 'Rename';
+  Result.frmRenameFiles_chkShowPreview_caption   := 'Show preview';
+
   result.MESSAGES_FILES_GENERATED                := 'Files generated successfully.';
   result.MESSAGES_FILE_NOT_FOUND                 := 'File not found: %s.';
   result.MESSAGES_SOURCE_DIR_NOT_FOUND           := 'Source directory does not exists.';
@@ -603,6 +645,9 @@ begin
   result.MESSAGES_OVERWRITE_PROMPT               := 'File already exists, it will be overwritten. Do you want to continue?';
   result.MESSAGES_COULD_NOT_CREATE_STREAM        := 'Could not create stream (%s)';
   result.MESSAGES_COULD_NOT_PLAY_FILE            := 'Could not play stream (%s)';
+  Result.MESSAGES_frmRenameFiles_INVALID_SERIAL  := 'The starting filename is not a valid serial number. It must contain one number.';
+  Result.MESSAGES_frmRenameFiles_RENAME_WARNING  := 'This will rename the files according to the serial given. The file extensions will be mantained. Do you want to continue?';
+  Result.MESSAGES_frmRenameFiles_RENAME_SUCCESS  := 'Files have been renamed.';
   result.CAPTION_NORMALIZE_BEFORE                := 'Normalize mp3 before conversion.';
   result.CAPTION_NORMALIZE_AFTER                 := 'Normalize resulting mp3.';
   result.CAPTION_ENCRYPT                         := 'Encrypt';
@@ -639,6 +684,10 @@ begin
   result.frmMct_gbExample_Caption                := 'Ejemplo de archivos que se reproducen con estas etiquetas';
   result.frmMct_btnGenerate_Caption              := 'Generar';
   result.frmMct_btnClose_Caption                 := 'Cerrar';
+  Result.frmRenameFiles_caption                  := 'Renombrar archivos en serie';
+  Result.frmRenameFiles_lblFirstFileName_caption := 'Nombre del primer archivo renombrado:';
+  Result.frmRenameFiles_btnRename_caption        := 'Renombrar';
+  Result.frmRenameFiles_chkShowPreview_caption   := 'Mostrar vista preliminar';
   result.MESSAGES_FILES_GENERATED                := 'Los archivos fueron generados exitosamente';
   result.MESSAGES_FILE_NOT_FOUND                 := 'No se encuentra el archivo: %s.';
   result.MESSAGES_SOURCE_DIR_NOT_FOUND           := 'No existe el directorio origen.';
@@ -656,6 +705,9 @@ begin
   result.MESSAGES_OVERWRITE_PROMPT               := 'El archivo destino ya existe, si continua se sobreescribirá su contenido. ¿Aún así desea continuar?';
   result.MESSAGES_COULD_NOT_CREATE_STREAM        := 'No fué posible crear el stream (%s)';
   result.MESSAGES_COULD_NOT_PLAY_FILE            := 'No se le pudo dar play (%s)';
+  Result.MESSAGES_frmRenameFiles_INVALID_SERIAL  := 'El nombre del primer archivo renombrado no es v{alido. Debe contener al menos un número.';
+  Result.MESSAGES_frmRenameFiles_RENAME_WARNING  := 'Este procedimiento renombrará los archivos de acuerdo con el patrón indicado por el nombre del primer archivo renombrado. La extensión del archivo no será modificada. ¿Desea continuar?';
+  Result.MESSAGES_frmRenameFiles_RENAME_SUCCESS  := 'Files have been renamed.';
   result.CAPTION_NORMALIZE_BEFORE                := 'Normalizar mp3 antes de convertirlo';
   result.CAPTION_NORMALIZE_AFTER                 := 'Normalizar mp3 resultante.';
   result.CAPTION_ENCRYPT                         := 'Encriptar';
@@ -673,6 +725,8 @@ begin
   result.mnuChangeKey_other_caption              := 'Otra...';
   result.mnuChangelanguage_caption               := 'Cambiar idioma';
   result.mniGenerateMCT_caption                  := 'Generador archivos TAG';
+  Result.mniTools_caption                        := 'Herramientas';
+  Result.mniRenameFiles_caption                  := 'Renombrar archivos en serie';
   Result.frmKey_caption                          := 'Cambiar algoritmo de encriptación';
   Result.frmKey_btnOK_caption                    := 'Aceptar';
   Result.frmKey_btnCancel_caption                := 'Cancelar';
@@ -725,16 +779,16 @@ begin
   end;
 end;
 
-function AlgorithmHasRotation(AnAlgorithm : TAlgorithm) : boolean;
+function AlgorithmIsBidirectional(AnAlgorithm : TAlgorithm) : boolean;
 var
   i : integer;
 begin
-  result := false;
+  result := true;
   for i := 0 to Length(AnAlgorithm.Operations) - 1 do
   begin
     if AnAlgorithm.Operations[i].OperationType = otRotate then
     begin
-      Result := true;
+      Result := false;
       exit;
     end;
   end;
