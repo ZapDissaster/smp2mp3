@@ -1,0 +1,128 @@
+[frmSmp2Mp3]
+CAPTION=SMP <-> MP3 converter
+[gbSingleFile]
+CAPTION=Convert a single file
+[btnConvertSingle]
+CAPTION=Convert
+[lblSOrigen]
+CAPTION=Source:
+[gbConvertBatch]
+CAPTION=Convert all files in a directory
+[lblBOrigen]
+CAPTION=Source:
+[btnBatchConvert]
+CAPTION=Convert
+[chkNormalizar]
+CAPTION=Normalize
+[mnuConfig]
+CAPTION=Configuration
+[mnuChangeKey]
+CAPTION=Change encryption algorithm
+[mnuChangeKey_other]
+CAPTION=Other...
+[mnuChangelanguage]
+CAPTION=Change language
+[mniGenerateMCT]
+CAPTION=TAG file generator
+[frmKey]
+CAPTION=Change encryption algorithm
+[frmKey_btnOK]
+CAPTION=OK
+[frmKey_btnCancel]
+CAPTION=Cancel
+[frmKey_SaveToFile]
+CAPTION=Save encryption algorithm as
+[frmKey_LoadFromFile]
+CAPTION=Load encryption algorithm
+[frmKey_lblOperations]
+CAPTION=Operations:
+[frmKey_lblSourceExt]
+CAPTION=Source ext.:
+[frmKey_lblDestExt]
+CAPTION=Dest. ext.:
+[frmKey_btnConvertAlgorithms]
+CAPTION=Convert between algorithms
+[frmKey_chkChangeID3v2]
+CAPTION=Change ID3v2.3 Tag  before encrypt (add filename to title).
+[frmKey_Convert_Source]
+CAPTION=Original format
+[frmKey_Convert_Destination]
+CAPTION=Destination format
+[fraOperation_lblXORkey]
+CAPTION=XOR key
+[fraOperation_lblRotateTimes]
+CAPTION=Times
+[fraOperation_lblRotateDirection]
+CAPTION=Direction
+[fraOperation_rbRotate_right]
+CAPTION=Right
+[fraOperation_rbRotate_left]
+CAPTION=Left
+[fraOperation_XOR]
+CAPTION=XOR
+[fraOperation_Rotate]
+CAPTION=Bit rotation
+[frmMct_Caption]
+CAPTION=TAG files generator
+[frmMct_lblTipo]
+CAPTION=Type
+[frmMct_lblDir]
+CAPTION=Directory
+[frmMct_lblFile]
+CAPTION=File
+[frmMct_lblToFile]
+CAPTION=to
+[frmMct_chkMultiple]
+CAPTION=Generate multiple files
+[frmMct_chkUseHex]
+CAPTION=Use hexadecimal values
+[frmMct_gbExample]
+CAPTION=Files to be played with the generated tags
+[frmMct_btnGenerate]
+CAPTION=Generate
+[frmMct_btnClose]
+CAPTION=Close
+[MESSAGES]
+FILES_GENERATED=Files generated successfully.
+FILE_NOT_FOUND=File not found: %s.
+SOURCE_DIR_NOT_FOUND=Source directory does not exists.
+CONVERTION_TYPE_NOT_SELECTED=onvertion type not selected.
+REPLACE_FILES_WARNING=This will replace all %s files that could exists in the same directory as the source files. Do you want to continue?
+FILES_OF_TYPE_NOT_FOUND=No  %s files found to convert.
+CONVERTING_FILES=Processing files ...
+PLEASE_WAIT=Please wait ...
+CONVERTION_CANCELLED=Process cancelled, not all files were converted.
+CONVERSION_ENDED=Conversion ended successfully.
+SELECTED_FILE_DONT_EXISTS=The selected file does not exists.
+CONVERT=Convert
+CONVERT_TO=Convert to %s
+CONVERTING_FILE=Processing file ...
+OVERWRITE_PROMPT=File already exists, it will be overwritten. Do you want to continue?
+COULD_NOT_CREATE_STREAM=Could not create stream (%s)
+COULD_NOT_PLAY_FILE=Could not play stream (%s)
+frmRenameFiles_INVALID_SERIAL=The starting filename is not a valid serial number. It must contain one number.
+frmRenameFiles_RENAME_WARNING=This will rename the files according to the serial given. The file extensions will be mantained. Do you want to continue?
+frmRenameFiles_RENAME_SUCCESS=Files have been renamed.
+[CAPTION]
+NORMALIZE_BEFORE=Normalize mp3 before conversion.
+NORMALIZE_AFTER=Normalize resulting mp3.
+ENCRYPT=Encrypt
+DECRYPT=Decrypt
+NORMALIZING=Normalizing
+PROCESSING=Processing
+SAVE_AS=Select directory
+SAVE_TO=Save to
+FIRST=First
+THEN=Then
+DO=Do
+FINALLY=Finally
+[mniTools]
+CAPTION=Tools
+[mniRenameFiles]
+CAPTION=Serial rename files
+[frmRenameFiles]
+CAPTION=Serial rename files
+[frmRenameFiles_lblFirstFileName]
+CAPTION=name of the first renamed file:
+[frmRenameFiles_btnRename]
+CAPTION=Rename

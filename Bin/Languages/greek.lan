@@ -1,0 +1,115 @@
+[GLOBAL]
+CHARSET=161
+[frmSmp2Mp3]
+CAPTION=SMP <-> MP3 converter
+[gbSingleFile]
+CAPTION=Μετατροπή ενός αρχείου
+[btnConvertSingle]
+CAPTION=Μετατροπή
+[lblSOrigen]
+CAPTION=Πηγή:
+[gbConvertBatch]
+CAPTION=Μετατροπή όλων των αρχείων στο φάκελο
+[lblBOrigen]
+CAPTION=Πηγή:
+[btnBatchConvert]
+CAPTION=Μετατροπή
+[chkNormalizar]
+CAPTION=Επαναφορά νορμάλ
+[mnuConfig]
+CAPTION=Διαμόρφωση
+[mnuChangeKey]
+CAPTION=Αλλαγή αλγορίθμου κρυπτογράφησης
+[mnuChangeKey_other]
+CAPTION=Άλλα...
+[mnuChangelanguage]
+CAPTION=Αλλαγή γλώσσας
+[mniGenerateMCT]
+CAPTION=Δημιουργία TAG αρχείου
+[frmKey]
+CAPTION=Αλλαγή αλγορίθμου κρυπτογράφησης
+[frmKey_btnOK]
+CAPTION=OK
+[frmKey_btnCancel]
+CAPTION=Άκυρο
+[frmKey_SaveToFile]
+CAPTION=Αποθήκευση αλγορίθμου κρυπρογράφησης ως
+[frmKey_LoadFromFile]
+CAPTION=Φόρτωση αλγορίθμου κρυπτογράφησης
+[frmKey_lblOperations]
+CAPTION=Λειτουργίες:
+[frmKey_lblSourceExt]
+CAPTION=Μορφή εισερχόμενου:
+[frmKey_lblDestExt]
+CAPTION=Μορφή εξερχόμενου:
+[frmKey_btnConvertAlgorithms]
+CAPTION=Μετατροπή μεταξύ αλγορίθμων
+[frmKey_Convert_Source]
+CAPTION=Αρχική μορφή
+[frmKey_Convert_Destination]
+CAPTION=Τελική μορφή
+[fraOperation_lblXORkey]
+CAPTION=XOR κλειδί
+[fraOperation_lblRotateTimes]
+CAPTION=Χρόνοι
+[fraOperation_lblRotateDirection]
+CAPTION=Κατεύθυνση
+[fraOperation_rbRotate_right]
+CAPTION=Δεξιά
+[fraOperation_rbRotate_left]
+CAPTION=Αριστερά
+[fraOperation_XOR]
+CAPTION=XOR
+[fraOperation_Rotate]
+CAPTION=Περιστροφή Bit
+[frmMct_Caption]
+CAPTION=Δημιουργία TAG αρχείου
+[frmMct_lblTipo]
+CAPTION=Τύπος
+[frmMct_lblDir]
+CAPTION=Φάκελος
+[frmMct_lblFile]
+CAPTION=Αρχείο
+[frmMct_lblToFile]
+CAPTION=στο
+[frmMct_chkMultiple]
+CAPTION=Μετατροπή πολλών αρχείων
+[frmMct_chkUseHex]
+CAPTION=Χρήση δεκαεξαδικών τιμών
+[frmMct_gbExample]
+CAPTION=Αρχεία να παίζουν με φτιαγμένα tags
+[frmMct_btnGenerate]
+CAPTION=Μετατροπή
+[frmMct_btnClose]
+CAPTION=Κλείσε
+[MESSAGES]
+FILES_GENERATED=Μετατροπή αρχείων ολοκληρώθηκε
+FILE_NOT_FOUND=Αρχείο δε βρέθηκε: %s.
+SOURCE_DIR_NOT_FOUND=Η πηγή φακέλου δεν υπάρχει.
+CONVERTION_TYPE_NOT_SELECTED=Ο τύποε μετατροπής δεν έχει επιλεχθεί.
+REPLACE_FILES_WARNING=Αυτό θα αντικαταστήσει όλα τα αρχεία που υπάρχουν στον ίδιο φάκελο της πηγής. Θέλετε να συνεχίσετε;
+FILES_OF_TYPE_NOT_FOUND=Δε  %s βρέθηκαν αρχεία για μετατροπή.
+CONVERTING_FILES=Μεατατροπή αρχείων ...
+PLEASE_WAIT=Παρακαλώ περιμένετε ...
+CONVERTION_CANCELLED=Διαδικασία ακυρώθηκε, δε μετατράπηκαν όλα τα αρχεία.
+CONVERSION_ENDED=Η μετατροπή ολοκληρώθηκε επιτυχώς.
+SELECTED_FILE_DONT_EXISTS=Το επιλεγμένο αρχείο δεν υπάρχει.
+CONVERT=Μετατροπή
+CONVERT_TO=Μετατροπή σε %s
+CONVERTING_FILE=Διαδικασία μετατροπής αρχείου ...
+OVERWRITE_PROMPT=Το αρχείο ήδη υπαρχει, θα επαναγραφεί. Θέλετε να συνεχίσετε?
+COULD_NOT_CREATE_STREAM=Δε μπορεί να δημιουργήσει stream (%s)
+COULD_NOT_PLAY_FILE=Δε μπορεί να παίξει stream (%s)
+[CAPTION]
+NORMALIZE_BEFORE=Αρχικοποίηση mp3 πριν την μετατροπή.
+NORMALIZE_AFTER=Αρχικοποίηση mp3 μετά.
+ENCRYPT=Κρυπτογράφησε
+DECRYPT=Αποκρυπτογράφησε
+NORMALIZING=Αρχικοποίησε
+PROCESSING=Διαδικασία
+SAVE_AS=Επιλογή φακέλου
+SAVE_TO=Αποθήκευση σε
+FIRST=Πρώτα
+THEN=Μετά
+DO=Κάνε
+FINALLY=Τελικά

@@ -1,0 +1,107 @@
+[frmSmp2Mp3]
+CAPTION=SMP <-> MP3 converter
+[gbSingleFile]
+CAPTION=Eine einzelne Datei konvertieren
+[btnConvertSingle]
+CAPTION=Konvertieren
+[lblSOrigen]
+CAPTION=Quelle:
+[gbConvertBatch]
+CAPTION=Alle Dateien im Verzeichnis konvertieren
+[lblBOrigen]
+CAPTION=Quelle:
+[btnBatchConvert]
+CAPTION=Konvertieren
+[chkNormalizar]
+CAPTION=Normalisieren
+[mnuConfig]
+CAPTION=Konfiguration
+[mnuChangeKey]
+CAPTION=Algorithmus ‰ndern
+[mnuChangeKey_other]
+CAPTION=Sonstiges...
+[mnuChangelanguage]
+CAPTION=Sprache ‰ndern
+[mniGenerateMCT]
+CAPTION=TAG-Datei-Generator
+[frmKey]
+CAPTION=Schl¸ssel ‰ndern
+[frmKey_btnOK]
+CAPTION=OK
+[frmKey_btnCancel]
+CAPTION=Abbrechen
+[frmKey_SaveToFile]
+CAPTION=Schl¸ssel speichern
+[frmKey_LoadFromFile]
+CAPTION=Schl¸ssel laden
+[frmKey_lblOperations]
+CAPTION=Operationen:
+[frmKey_lblSourceExt]
+CAPTION=Quellenerweiterung:
+[frmKey_lblDestExt]
+CAPTION=Zielerweiterung:
+[fraOperation_lblXORkey]
+CAPTION=XOR-Schl¸ssel
+[fraOperation_lblRotateTimes]
+CAPTION=Mal
+[fraOperation_lblRotateDirection]
+CAPTION=Richtung
+[fraOperation_rbRotate_right]
+CAPTION=Rechts
+[fraOperation_rbRotate_left]
+CAPTION=Links
+[fraOperation_XOR]
+CAPTION=XOR
+[fraOperation_Rotate]
+CAPTION=Bits drehen
+[frmMct_Caption]
+CAPTION=TAG-Datei-Generator
+[frmMct_lblTipo]
+CAPTION=Typ
+[frmMct_lblDir]
+CAPTION=Verzeichnis
+[frmMct_lblFile]
+CAPTION=Datei
+[frmMct_lblToFile]
+CAPTION=nach
+[frmMct_chkMultiple]
+CAPTION=Mehrere Dateien erstellen
+[frmMct_chkUseHex]
+CAPTION=Hexadezimal-Werte verwenden
+[frmMct_gbExample]
+CAPTION=Dateien, die mit den erzeugten Tags abgespielt werden sollen
+[frmMct_btnGenerate]
+CAPTION=Erzeugen
+[frmMct_btnClose]
+CAPTION=Schliessen
+[MESSAGES]
+FILES_GENERATED=Dateien erfolgreich erzeugt.
+FILE_NOT_FOUND=Datei nicht gefunden: %s.
+SOURCE_DIR_NOT_FOUND=Quell-Verzeichnis existiert nicht.
+CONVERTION_TYPE_NOT_SELECTED=Konvertierungs-Typ nicht ausgew‰hlt.
+REPLACE_FILES_WARNING=Diese Aktion wird alle %s Dateien ¸berschreiben die im gleichen Verzeichnis wie die Quell-Dateien existieren kˆnnten. Wollen Sie fortfahren?
+FILES_OF_TYPE_NOT_FOUND=Keine %s Dateien zum Konvertieren gefunden.
+CONVERTING_FILES=Verarbeite Dateien ...
+PLEASE_WAIT=Bitte warten ...
+CONVERTION_CANCELLED=Verarbeitung abgebrochen, nicht alle Dateien wurden konvertiert.
+CONVERSION_ENDED=Konvertierung erfolgreich abgeschlossen.
+SELECTED_FILE_DONT_EXISTS=Die ausgew‰hlte Datei existiert nicht.
+CONVERT=Konvertieren
+CONVERT_TO=Konvertieren nach %s
+CONVERTING_FILE=Verarbeite Datei ...
+OVERWRITE_PROMPT=Datei existiert bereits. ‹berschreiben?
+COULD_NOT_CREATE_STREAM=Konnte Stream nicht erzeugen (%s)
+COULD_NOT_PLAY_FILE=Konnte Stream nicht abspielen (%s)
+[CAPTION]
+NORMALIZE_BEFORE=MP3 vor Konvertierung normalisieren
+NORMALIZE_AFTER=MP3 normalisieren
+ENCRYPT=Verschl¸sseln (.mp3 -> .smp)
+DECRYPT=Entschl¸sseln (.smp -> .mp3)
+NORMALIZING=Normalisiere
+PROCESSING=Verarbeite
+SAVE_AS=Verzeichnis ausw‰hlen
+SAVE_TO=Speichern unter
+FIRST=Erste
+THEN=Dann
+DO=Mach
+FINALLY=schlieﬂlich

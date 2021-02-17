@@ -1,0 +1,128 @@
+[frmSmp2Mp3]
+CAPTION=Convertidor SMP <-> MP3
+[gbSingleFile]
+CAPTION=Convertir un solo archivo
+[btnConvertSingle]
+CAPTION=Convertir
+[lblSOrigen]
+CAPTION=Origen:
+[gbConvertBatch]
+CAPTION=Convertir todos los archivos de un directorio
+[lblBOrigen]
+CAPTION=Origen:
+[btnBatchConvert]
+CAPTION=Convertir
+[chkNormalizar]
+CAPTION=Normalizar
+[mnuConfig]
+CAPTION=Configuración
+[mnuChangeKey]
+CAPTION=Cambiar algoritmo de encriptación
+[mnuChangeKey_other]
+CAPTION=Otra...
+[mnuChangelanguage]
+CAPTION=Cambiar idioma
+[mniGenerateMCT]
+CAPTION=Generador archivos TAG
+[frmKey]
+CAPTION=Cambiar algoritmo de encriptación
+[frmKey_btnOK]
+CAPTION=Aceptar
+[frmKey_btnCancel]
+CAPTION=Cancelar
+[frmKey_SaveToFile]
+CAPTION=Guardar algoritmo de encriptación como
+[frmKey_LoadFromFile]
+CAPTION=Cargar algoritmo de encriptación
+[frmKey_lblOperations]
+CAPTION=Operaciones:
+[frmKey_lblSourceExt]
+CAPTION=Ext. origen:
+[frmKey_lblDestExt]
+CAPTION=Ext. destino:
+[frmKey_btnConvertAlgorithms]
+CAPTION=Convertir entre algortimos
+[frmKey_chkChangeID3v2]
+CAPTION=Cambiar tag ID3v2.3 antes de encriptar (agregar el nombre del archivo al título).
+[frmKey_Convert_Source]
+CAPTION=Formato origen
+[frmKey_Convert_Destination]
+CAPTION=Formato destino
+[fraOperation_lblXORkey]
+CAPTION=Llave XOR
+[fraOperation_lblRotateTimes]
+CAPTION=Veces
+[fraOperation_lblRotateDirection]
+CAPTION=Dirección
+[fraOperation_rbRotate_right]
+CAPTION=Derecha
+[fraOperation_rbRotate_left]
+CAPTION=Izquierda
+[fraOperation_XOR]
+CAPTION=XOR
+[fraOperation_Rotate]
+CAPTION=Rotar bits
+[frmMct_Caption]
+CAPTION=Generador de archivos TAG
+[frmMct_lblTipo]
+CAPTION=Tipo
+[frmMct_lblDir]
+CAPTION=Directorio
+[frmMct_lblFile]
+CAPTION=Archivo
+[frmMct_lblToFile]
+CAPTION=al
+[frmMct_chkMultiple]
+CAPTION=Generar varios archivos
+[frmMct_chkUseHex]
+CAPTION=Usar hexadecimales
+[frmMct_gbExample]
+CAPTION=Ejemplo de archivos que se reproducen con estas etiquetas
+[frmMct_btnGenerate]
+CAPTION=Generar
+[frmMct_btnClose]
+CAPTION=Cerrar
+[MESSAGES]
+FILES_GENERATED=Los archivos fueron generados exitosamente
+FILE_NOT_FOUND=No se encuentra el archivo: %s.
+SOURCE_DIR_NOT_FOUND=No existe el directorio origen.
+CONVERTION_TYPE_NOT_SELECTED=No se ha seleccionado el tipo de conversión.
+REPLACE_FILES_WARNING=Este proceso reemplazará los archivos %s que puedan existir en el mismo directorio en que se encuentran los archivos origen. ¿Aún así desea continuar?
+FILES_OF_TYPE_NOT_FOUND=No se encontraron archivos %s a convertir.
+CONVERTING_FILES=Convirtiendo archivos ...
+PLEASE_WAIT=Por favor espere ...
+CONVERTION_CANCELLED=Se cancelo el proceso, no todos los archivos fueron convertidos.
+CONVERSION_ENDED=La conversión ha terminado.
+SELECTED_FILE_DONT_EXISTS=El archivo seleccionado no existe.
+CONVERT=Convertir
+CONVERT_TO=Convertir a %s
+CONVERTING_FILE=Convirtiendo archivo ...
+OVERWRITE_PROMPT=El archivo destino ya existe, si continua se sobreescribirá su contenido. ¿Aún así desea continuar?
+COULD_NOT_CREATE_STREAM=No fué posible crear el stream (%s)
+COULD_NOT_PLAY_FILE=No se le pudo dar play (%s)
+frmRenameFiles_INVALID_SERIAL=El nombre del primer archivo renombrado no es v{alido. Debe contener al menos un número.
+frmRenameFiles_RENAME_WARNING=Este procedimiento renombrará los archivos de acuerdo con el patrón indicado por el nombre del primer archivo renombrado. La extensión del archivo no será modificada. ¿Desea continuar?
+frmRenameFiles_RENAME_SUCCESS=Files have been renamed.
+[CAPTION]
+NORMALIZE_BEFORE=Normalizar mp3 antes de convertirlo
+NORMALIZE_AFTER=Normalizar mp3 resultante.
+ENCRYPT=Encriptar
+DECRYPT=Desencriptar
+NORMALIZING=Normalizando
+PROCESSING=Procesando
+SAVE_AS=Seleccionar directorio
+SAVE_TO=Guardar en
+FIRST=Primero
+THEN=Después
+DO=Hacer
+FINALLY=Finalmente
+[mniTools]
+CAPTION=Herramientas
+[mniRenameFiles]
+CAPTION=Renombrar archivos en serie
+[frmRenameFiles]
+CAPTION=Renombrar archivos en serie
+[frmRenameFiles_lblFirstFileName]
+CAPTION=Nombre del primer archivo renombrado:
+[frmRenameFiles_btnRename]
+CAPTION=Renombrar
