@@ -24,6 +24,8 @@ Audiocubes are cube like audio players with an integrated speaker, that will aut
 - Faba box
 - Luppa - La granja de Zenon
 
+* Some .key files might not be included in the .zip downloadable file. They can be downloaded from the Keys directory in this repository.
+
 ### Similar projects
 Joaquim S. has a similar proyect that works on Python. In addition he has collected a lot of information regarding this kind of cubes.
 His project can be foud here: https://github.com/oyooyo/audiocube
