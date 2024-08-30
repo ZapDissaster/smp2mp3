@@ -17,6 +17,13 @@ Audiocubes are cube like audio players with an integrated speaker, that will aut
 - Languaje can be easily changed using .lan files.
 - No instalation needed, just download [Smp2Mp3.zip](https://github.com/ZapDissaster/smp2mp3/blob/main/Bin/Smp2Mp3.zip), unzip and run smp2mp3.exe
 
+### Current key files supported:
+- Hachette  / Salvat audio cube (blue and green version).
+- Lidl Storyland
+- Migros Storybox
+- Faba box
+- Luppa - La granja de Zenon
+
 ### Similar projects
 Joaquim S. has a similar proyect that works on Python. In addition he has collected a lot of information regarding this kind of cubes.
 His project can be foud here: https://github.com/oyooyo/audiocube
